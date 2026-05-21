@@ -10,20 +10,46 @@
 
 ## 🚀 빠른 시작
 
+### ⚡ 방법 1: 통합 실행 (권장) - 한 줄로 끝!
+
 ```bash
-# 전체 프로세스 한번에 실행
-python src/step1_email_parser.py    # 이메일 파싱
-python src/step2_code_extractor.py  # 소스코드 추출
-python src/step3_analysis_report.py # AI 분석 (Mock 모드)
+# 전체 3단계 한번에 실행 (Mock 모드)
+python run_all.py
+
+# 실제 Java 프로젝트 분석
+python run_all.py --project "C:\workspace\hanwha-ax-backend"
+
+# Ollama로 실제 AI 분석
+python run_all.py --llm ollama --model qwen2.5:7b
+
+# OpenAI로 분석
+python run_all.py --llm openai --model gpt-4 --api-key YOUR_KEY
+
+# 도움말 보기
+python run_all.py --help
+```
+
+### 📋 방법 2: 단계별 실행 (커스터마이즈)
+
+```bash
+# 1단계: 이메일 파싱
+python src/step1_email_parser.py
+
+# 2단계: 소스코드 추출
+python src/step2_code_extractor.py
+
+# 3단계: AI 분석 (Mock 모드)
+python src/step3_analysis_report.py
 
 # 결과 확인
-explorer reports
+explorer reports  # Windows
 ```
 
 ## 프로젝트 구조
 
 ```
 ai-agent/
+├── run_all.py                      # ⚡ 통합 실행 스크립트 (전체 3단계 한번에!)
 ├── email/                          # 에러 메일/로그 파일 저장 폴더
 │   ├── sample_error.txt           # 샘플 에러 메일
 │   └── database_error.log         # 샘플 데이터베이스 에러 로그
