@@ -1,0 +1,793 @@
+{
+  "database_error.log": {
+    "email_file": "database_error.log",
+    "has_error": true,
+    "search_count": 10,
+    "searches": [
+      {
+        "error_type": "exception",
+        "exception_type": "Unknown",
+        "exception_message": "Could not execute statement",
+        "search_query": "Unknown Could not execute statement",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.35773348808288574,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Customer.java",
+            "file_name": "Customer.java",
+            "class_name": "Customer",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 모델\n */\npublic class Customer {\n    private String id;\n    private String name;\n    private String email;\n    \n    public String getId() {\n        return id;\n    }\n    \n    public void setId(String id) {\n        this.id = id;\n    }\n    \n    public String getName() {\n        return name;\n    }\n    \n    public void setName(String name) {\n        this.name = name;\n    }\n    \n    public String getEmail() {\n        return email;\n    }\n    \n    public void setEmail(String email) {",
+            "snippet_length": 491
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.3890526294708252,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 2,
+            "code_snippet": "return order;\n    }\n    \n    /**\n     * 고객 데이터 유효성 검증\n     */\n    public void validateCustomerData(Customer customer) {\n        // 고객 ID 검증\n        if (customer.getId() == null || customer.getId().isEmpty()) {\n            throw new IllegalArgumentException(\"Customer ID is required\");\n        }\n        \n        // 고객 이름 검증 - 여기서 NullPointerException 발생 가능!\n        String customerName = customer.getName();",
+            "snippet_length": 407
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.3988170623779297,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          }
+        ]
+      },
+      {
+        "error_type": "exception",
+        "exception_type": "Unknown",
+        "exception_message": "Table 'ax_db.products' doesn't exist",
+        "search_query": "Unknown Table 'ax_db.products' doesn't exist",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.49842000007629395,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Customer.java",
+            "file_name": "Customer.java",
+            "class_name": "Customer",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.model;",
+            "snippet_length": 28
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.49842000007629395,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.model;",
+            "snippet_length": 28
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.7165811061859131,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 4,
+            "code_snippet": "}\n    \n    /**\n     * 고객 정보 업데이트\n     */\n    public void updateCustomerInfo(Customer customer) {\n        // 고객 정보 업데이트 로직\n        validateCustomerData(customer);\n        \n        // DB 업데이트\n        // ...\n    }\n}",
+            "snippet_length": 212
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "ProductRepository",
+        "method": "findProductById",
+        "line": 234,
+        "search_query": "ProductRepository findProductById",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.3115205764770508,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 2,
+            "code_snippet": "this.customerId = customerId;\n    }\n    \n    public String getProductId() {\n        return productId;\n    }\n    \n    public void setProductId(String productId) {\n        this.productId = productId;\n    }\n    \n    public Integer getQuantity() {\n        return quantity;\n    }\n    \n    public void setQuantity(Integer quantity) {\n        this.quantity = quantity;\n    }\n    \n    public String getStatus() {\n        return status;\n    }\n    \n    public void setStatus(String status) {",
+            "snippet_length": 481
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.6407284736633301,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.771956205368042,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.model;",
+            "snippet_length": 28
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "ProductService",
+        "method": "getProductDetails",
+        "line": 112,
+        "search_query": "ProductService getProductDetails",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.19042527675628662,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 2,
+            "code_snippet": "this.customerId = customerId;\n    }\n    \n    public String getProductId() {\n        return productId;\n    }\n    \n    public void setProductId(String productId) {\n        this.productId = productId;\n    }\n    \n    public Integer getQuantity() {\n        return quantity;\n    }\n    \n    public void setQuantity(Integer quantity) {\n        this.quantity = quantity;\n    }\n    \n    public String getStatus() {\n        return status;\n    }\n    \n    public void setStatus(String status) {",
+            "snippet_length": 481
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.4918973445892334,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.service;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport org.springframework.stereotype.Service;",
+            "snippet_length": 149
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.5457925796508789,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "OrderService",
+        "method": "validateOrderItems",
+        "line": 156,
+        "search_query": "OrderService validateOrderItems",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": 0.028295278549194336,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.006152629852294922,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 2,
+            "code_snippet": "return order;\n    }\n    \n    /**\n     * 고객 데이터 유효성 검증\n     */\n    public void validateCustomerData(Customer customer) {\n        // 고객 ID 검증\n        if (customer.getId() == null || customer.getId().isEmpty()) {\n            throw new IllegalArgumentException(\"Customer ID is required\");\n        }\n        \n        // 고객 이름 검증 - 여기서 NullPointerException 발생 가능!\n        String customerName = customer.getName();",
+            "snippet_length": 407
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.24578440189361572,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "OrderService",
+        "method": "createOrder",
+        "line": 78,
+        "search_query": "OrderService createOrder",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.051180243492126465,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 처리 컨트롤러\n */\n@RestController\n@RequestMapping(\"/api/orders\")\npublic class OrderController {\n    \n    @Autowired\n    private CustomerService customerService;\n    \n    /**\n     * 새 주문 생성\n     */\n    @PostMapping(\"/create\")\n    public Order createOrder(@RequestBody OrderRequest request) {\n        // 고객 정보 조회\n        Customer customer = new Customer();\n        customer.setId(request.getCustomerId());\n        customer.setName(request.getCustomerName());",
+            "snippet_length": 460
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.14960193634033203,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.2349400520324707,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "OrderController",
+        "method": "submitOrder",
+        "line": 45,
+        "search_query": "OrderController submitOrder",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.29019856452941895,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.3005976676940918,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 처리 컨트롤러\n */\n@RestController\n@RequestMapping(\"/api/orders\")\npublic class OrderController {\n    \n    @Autowired\n    private CustomerService customerService;\n    \n    /**\n     * 새 주문 생성\n     */\n    @PostMapping(\"/create\")\n    public Order createOrder(@RequestBody OrderRequest request) {\n        // 고객 정보 조회\n        Customer customer = new Customer();\n        customer.setId(request.getCustomerId());\n        customer.setName(request.getCustomerName());",
+            "snippet_length": 460
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.4010188579559326,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.controller;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport com.hanwha.ax.service.CustomerService;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;",
+            "snippet_length": 264
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "SQLError",
+        "method": "createSQLException",
+        "line": 120,
+        "search_query": "SQLError createSQLException",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.6238971948623657,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 3,
+            "code_snippet": "String customerName = customer.getName();\n        if (customerName.length() < 2) {  // Line 145: customerName이 null일 때 에러 발생\n            throw new IllegalArgumentException(\"Customer name must be at least 2 characters\");\n        }\n        \n        // 이메일 검증\n        if (customer.getEmail() == null || !customer.getEmail().contains(\"@\")) {\n            throw new IllegalArgumentException(\"Valid email is required\");\n        }\n    }\n    \n    /**\n     * 고객 정보 업데이트\n     */",
+            "snippet_length": 467
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.6253805160522461,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 2,
+            "code_snippet": "return order;\n    }\n    \n    /**\n     * 고객 데이터 유효성 검증\n     */\n    public void validateCustomerData(Customer customer) {\n        // 고객 ID 검증\n        if (customer.getId() == null || customer.getId().isEmpty()) {\n            throw new IllegalArgumentException(\"Customer ID is required\");\n        }\n        \n        // 고객 이름 검증 - 여기서 NullPointerException 발생 가능!\n        String customerName = customer.getName();",
+            "snippet_length": 407
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.7117234468460083,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 4,
+            "code_snippet": "}\n    \n    /**\n     * 고객 정보 업데이트\n     */\n    public void updateCustomerInfo(Customer customer) {\n        // 고객 정보 업데이트 로직\n        validateCustomerData(customer);\n        \n        // DB 업데이트\n        // ...\n    }\n}",
+            "snippet_length": 212
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "SQLExceptionsMapping",
+        "method": "translateException",
+        "line": 122,
+        "search_query": "SQLExceptionsMapping translateException",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.3472456932067871,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 3,
+            "code_snippet": "String customerName = customer.getName();\n        if (customerName.length() < 2) {  // Line 145: customerName이 null일 때 에러 발생\n            throw new IllegalArgumentException(\"Customer name must be at least 2 characters\");\n        }\n        \n        // 이메일 검증\n        if (customer.getEmail() == null || !customer.getEmail().contains(\"@\")) {\n            throw new IllegalArgumentException(\"Valid email is required\");\n        }\n    }\n    \n    /**\n     * 고객 정보 업데이트\n     */",
+            "snippet_length": 467
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.39419126510620117,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 2,
+            "code_snippet": "return order;\n    }\n    \n    /**\n     * 고객 데이터 유효성 검증\n     */\n    public void validateCustomerData(Customer customer) {\n        // 고객 ID 검증\n        if (customer.getId() == null || customer.getId().isEmpty()) {\n            throw new IllegalArgumentException(\"Customer ID is required\");\n        }\n        \n        // 고객 이름 검증 - 여기서 NullPointerException 발생 가능!\n        String customerName = customer.getName();",
+            "snippet_length": 407
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.4754054546356201,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "DatabaseConfig",
+        "method": "executeQuery",
+        "line": 89,
+        "search_query": "DatabaseConfig executeQuery",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.36897706985473633,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 4,
+            "code_snippet": "}\n    \n    /**\n     * 고객 정보 업데이트\n     */\n    public void updateCustomerInfo(Customer customer) {\n        // 고객 정보 업데이트 로직\n        validateCustomerData(customer);\n        \n        // DB 업데이트\n        // ...\n    }\n}",
+            "snippet_length": 212
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.49939000606536865,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Customer.java",
+            "file_name": "Customer.java",
+            "class_name": "Customer",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 모델\n */\npublic class Customer {\n    private String id;\n    private String name;\n    private String email;\n    \n    public String getId() {\n        return id;\n    }\n    \n    public void setId(String id) {\n        this.id = id;\n    }\n    \n    public String getName() {\n        return name;\n    }\n    \n    public void setName(String name) {\n        this.name = name;\n    }\n    \n    public String getEmail() {\n        return email;\n    }\n    \n    public void setEmail(String email) {",
+            "snippet_length": 491
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.5903594493865967,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          }
+        ]
+      }
+    ]
+  },
+  "sample_error.txt": {
+    "email_file": "sample_error.txt",
+    "has_error": true,
+    "search_count": 10,
+    "searches": [
+      {
+        "error_type": "exception",
+        "exception_type": "Unknown",
+        "exception_message": "Cannot invoke \"String.length()\" because \"customerName\" is null",
+        "search_query": "Unknown Cannot invoke \"String.length()\" because \"customerName\" is null",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": 0.0466575026512146,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 3,
+            "code_snippet": "String customerName = customer.getName();\n        if (customerName.length() < 2) {  // Line 145: customerName이 null일 때 에러 발생\n            throw new IllegalArgumentException(\"Customer name must be at least 2 characters\");\n        }\n        \n        // 이메일 검증\n        if (customer.getEmail() == null || !customer.getEmail().contains(\"@\")) {\n            throw new IllegalArgumentException(\"Valid email is required\");\n        }\n    }\n    \n    /**\n     * 고객 정보 업데이트\n     */",
+            "snippet_length": 467
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.021429777145385742,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 2,
+            "code_snippet": "return order;\n    }\n    \n    /**\n     * 고객 데이터 유효성 검증\n     */\n    public void validateCustomerData(Customer customer) {\n        // 고객 ID 검증\n        if (customer.getId() == null || customer.getId().isEmpty()) {\n            throw new IllegalArgumentException(\"Customer ID is required\");\n        }\n        \n        // 고객 이름 검증 - 여기서 NullPointerException 발생 가능!\n        String customerName = customer.getName();",
+            "snippet_length": 407
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.13788044452667236,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Customer.java",
+            "file_name": "Customer.java",
+            "class_name": "Customer",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 모델\n */\npublic class Customer {\n    private String id;\n    private String name;\n    private String email;\n    \n    public String getId() {\n        return id;\n    }\n    \n    public void setId(String id) {\n        this.id = id;\n    }\n    \n    public String getName() {\n        return name;\n    }\n    \n    public void setName(String name) {\n        this.name = name;\n    }\n    \n    public String getEmail() {\n        return email;\n    }\n    \n    public void setEmail(String email) {",
+            "snippet_length": 491
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "CustomerService",
+        "method": "validateCustomerData",
+        "line": 145,
+        "search_query": "CustomerService validateCustomerData",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": 0.11842679977416992,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 4,
+            "code_snippet": "}\n    \n    /**\n     * 고객 정보 업데이트\n     */\n    public void updateCustomerInfo(Customer customer) {\n        // 고객 정보 업데이트 로직\n        validateCustomerData(customer);\n        \n        // DB 업데이트\n        // ...\n    }\n}",
+            "snippet_length": 212
+          },
+          {
+            "rank": 2,
+            "similarity_score": 0.06876116991043091,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 2,
+            "code_snippet": "return order;\n    }\n    \n    /**\n     * 고객 데이터 유효성 검증\n     */\n    public void validateCustomerData(Customer customer) {\n        // 고객 ID 검증\n        if (customer.getId() == null || customer.getId().isEmpty()) {\n            throw new IllegalArgumentException(\"Customer ID is required\");\n        }\n        \n        // 고객 이름 검증 - 여기서 NullPointerException 발생 가능!\n        String customerName = customer.getName();",
+            "snippet_length": 407
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.12929320335388184,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "CustomerService",
+        "method": "processCustomerOrder",
+        "line": 89,
+        "search_query": "CustomerService processCustomerOrder",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": 0.15956473350524902,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.17679905891418457,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.26220154762268066,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 4,
+            "code_snippet": "}\n    \n    /**\n     * 고객 정보 업데이트\n     */\n    public void updateCustomerInfo(Customer customer) {\n        // 고객 정보 업데이트 로직\n        validateCustomerData(customer);\n        \n        // DB 업데이트\n        // ...\n    }\n}",
+            "snippet_length": 212
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "OrderController",
+        "method": "createOrder",
+        "line": 67,
+        "search_query": "OrderController createOrder",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.2689797878265381,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 처리 컨트롤러\n */\n@RestController\n@RequestMapping(\"/api/orders\")\npublic class OrderController {\n    \n    @Autowired\n    private CustomerService customerService;\n    \n    /**\n     * 새 주문 생성\n     */\n    @PostMapping(\"/create\")\n    public Order createOrder(@RequestBody OrderRequest request) {\n        // 고객 정보 조회\n        Customer customer = new Customer();\n        customer.setId(request.getCustomerId());\n        customer.setName(request.getCustomerName());",
+            "snippet_length": 460
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.34287023544311523,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.35104846954345703,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.controller;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport com.hanwha.ax.service.CustomerService;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;",
+            "snippet_length": 264
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "NativeMethodAccessorImpl",
+        "method": "invoke",
+        "line": 62,
+        "search_query": "NativeMethodAccessorImpl invoke",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.46835505962371826,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.service;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport org.springframework.stereotype.Service;",
+            "snippet_length": 149
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.5906761884689331,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.controller;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport com.hanwha.ax.service.CustomerService;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;",
+            "snippet_length": 264
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.6059247255325317,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.model;",
+            "snippet_length": 28
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "DelegatingMethodAccessorImpl",
+        "method": "invoke",
+        "line": 43,
+        "search_query": "DelegatingMethodAccessorImpl invoke",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.5303996801376343,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.controller;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport com.hanwha.ax.service.CustomerService;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;",
+            "snippet_length": 264
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.56166672706604,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.5665109157562256,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.service;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport org.springframework.stereotype.Service;",
+            "snippet_length": 149
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "Method",
+        "method": "invoke",
+        "line": 566,
+        "search_query": "Method invoke",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.39071738719940186,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.44442498683929443,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 주문 정보 모델\n */\npublic class Order {\n    private String orderId;\n    private String customerId;\n    private String productId;\n    private Integer quantity;\n    private String status;\n    \n    public String getOrderId() {\n        return orderId;\n    }\n    \n    public void setOrderId(String orderId) {\n        this.orderId = orderId;\n    }\n    \n    public String getCustomerId() {\n        return customerId;\n    }\n    \n    public void setCustomerId(String customerId) {",
+            "snippet_length": 472
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.4614856243133545,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 3,
+            "code_snippet": "public void setStatus(String status) {\n        this.status = status;\n    }\n}",
+            "snippet_length": 76
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "InvocableHandlerMethod",
+        "method": "doInvoke",
+        "line": 190,
+        "search_query": "InvocableHandlerMethod doInvoke",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.5140496492385864,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 3,
+            "code_snippet": "public void setStatus(String status) {\n        this.status = status;\n    }\n}",
+            "snippet_length": 76
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.5142158269882202,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.5979218482971191,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "InvocableHandlerMethod",
+        "method": "invokeForRequest",
+        "line": 138,
+        "search_query": "InvocableHandlerMethod invokeForRequest",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.5102101564407349,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.5368074178695679,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.5787421464920044,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\model\\Order.java",
+            "file_name": "Order.java",
+            "class_name": "Order",
+            "chunk_id": 3,
+            "code_snippet": "public void setStatus(String status) {\n        this.status = status;\n    }\n}",
+            "snippet_length": 76
+          }
+        ]
+      },
+      {
+        "error_type": "stack_trace",
+        "class_name": "ServletInvocableHandlerMethod",
+        "method": "invokeAndHandle",
+        "line": 105,
+        "search_query": "ServletInvocableHandlerMethod invokeAndHandle",
+        "found_codes": [
+          {
+            "rank": 1,
+            "similarity_score": -0.33299684524536133,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 2,
+            "code_snippet": "customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직",
+            "snippet_length": 481
+          },
+          {
+            "rank": 2,
+            "similarity_score": -0.3814053535461426,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+            "file_name": "OrderController.java",
+            "class_name": "OrderController",
+            "chunk_id": 0,
+            "code_snippet": "package com.hanwha.ax.controller;\n\nimport com.hanwha.ax.model.Customer;\nimport com.hanwha.ax.model.Order;\nimport com.hanwha.ax.service.CustomerService;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;",
+            "snippet_length": 264
+          },
+          {
+            "rank": 3,
+            "similarity_score": -0.3877042531967163,
+            "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+            "file_name": "CustomerService.java",
+            "class_name": "CustomerService",
+            "chunk_id": 1,
+            "code_snippet": "/**\n * 고객 정보 처리 서비스\n */\n@Service\npublic class CustomerService {\n    \n    /**\n     * 고객 주문 처리\n     */\n    public Order processCustomerOrder(Customer customer, Order order) {\n        System.out.println(\"Processing order for customer: \" + customer.getId());\n        \n        // 고객 데이터 검증\n        validateCustomerData(customer);\n        \n        // 주문 처리 로직\n        order.setStatus(\"PROCESSING\");\n        order.setCustomerId(customer.getId());\n        \n        return order;\n    }\n    \n    /**",
+            "snippet_length": 489
+          }
+        ]
+      }
+    ]
+  }
+}

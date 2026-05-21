@@ -212,6 +212,9 @@ class CodeExtractor:
             return {
                 'success': False,
                 'class_name': class_name,
+                'method': method,
+                'package': package,
+                'line': line_number,
                 'error': f'{class_name}.java 파일을 찾을 수 없습니다.'
             }
         
