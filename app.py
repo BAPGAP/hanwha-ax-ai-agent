@@ -445,11 +445,7 @@ def main():
                 unsafe_allow_html=True)
     st.markdown("---")
     
-    # 워크플로우 다이어그램
-    show_workflow_diagram(use_rag)
-    st.markdown("---")
-    
-    # 사이드바 설정
+    # 사이드바 설정 (먼저 설정해서 use_rag 변수 초기화)
     with st.sidebar:
         st.header("⚙️ 설정")
         
@@ -560,6 +556,11 @@ def main():
         3. 실시간 진행 상황 확인
         4. 생성된 리포트 확인
         """)
+    
+    # 워크플로우 다이어그램 (사이드바 설정 후)
+    st.markdown("---")
+    show_workflow_diagram(use_rag)
+    st.markdown("---")
     
     # 메인 컨텐츠
     st.header("📊 실행 현황")
