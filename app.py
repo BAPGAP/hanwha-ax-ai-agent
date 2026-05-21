@@ -18,7 +18,9 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from step1_email_parser import EmailParser
 from step2_code_extractor import CodeExtractor
+from step2_rag_extractor import RAGCodeExtractor
 from step3_analysis_report import AnalysisReportGenerator
+from step3_rag_analysis import RAGAnalysisReportGenerator
 
 
 # 페이지 설정
@@ -85,9 +87,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-def show_workflow_diagram():
+def show_workflow_diagram(use_rag=False):
     """워크플로우 다이어그램 표시"""
-    st.markdown("### 🔄 워크플로우")
+    method_name = "🧠 RAG 기반 의미 검색" if use_rag else "⚡ Traditional 정확 탐색"
+    st.markdown(f"### 🔄 워크플로우 ({method_name})")
     
     col1, col2, col3 = st.columns(3)
     
@@ -107,19 +110,34 @@ def show_workflow_diagram():
         """, unsafe_allow_html=True)
     
     with col2:
-        st.markdown("""
-        <div class="stage-card">
-            <div class="stage-header">🔍 [2단계] 소스코드 추출</div>
-            <p><b>Input:</b> step1_parsed_errors.json</p>
-            <p><b>Process:</b> 실시간 파일 탐색 및 읽기</p>
-            <p><b>Output:</b> step2_code_contexts.json</p>
-            <p style="margin-top: 1rem;">
-                ✓ Java 파일 찾기<br>
-                ✓ 에러 라인 ±30줄<br>
-                ✓ 최신 코드 반영
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        if use_rag:
+            st.markdown("""
+            <div class="stage-card">
+                <div class="stage-header">🧠 [2단계-RAG] 의미 기반 검색</div>
+                <p><b>Input:</b> step1_parsed_errors.json</p>
+                <p><b>Process:</b> 벡터 DB 유사도 검색</p>
+                <p><b>Output:</b> step2_rag_contexts.json</p>
+                <p style="margin-top: 1rem;">
+                    ✓ 코드베이스 임베딩<br>
+                    ✓ 의미 기반 검색<br>
+                    ✓ Top-K 유사 코드
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div class="stage-card">
+                <div class="stage-header">🔍 [2단계] 소스코드 추출</div>
+                <p><b>Input:</b> step1_parsed_errors.json</p>
+                <p><b>Process:</b> 실시간 파일 탐색 및 읽기</p>
+                <p><b>Output:</b> step2_code_contexts.json</p>
+                <p style="margin-top: 1rem;">
+                    ✓ Java 파일 찾기<br>
+                    ✓ 에러 라인 ±30줄<br>
+                    ✓ 최신 코드 반영
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
@@ -203,7 +221,8 @@ def run_stage2(project_root: str, context_lines: int, status_placeholder, progre
             "total_contexts": total_contexts,
             "successful": successful,
             "failed": failed,
-            "contexts": contexts
+            "contexts": contexts,
+            "method": "traditional"
         }
         
         status_placeholder.success(f"✅ [2단계] 완료: {successful}개 성공, {failed}개 실패")
@@ -214,25 +233,81 @@ def run_stage2(project_root: str, context_lines: int, status_placeholder, progre
         return {"success": False, "error": str(e)}
 
 
-def run_stage3(llm_type: str, model_name: str, api_key: str, use_mock: bool, 
-               status_placeholder, progress_bar):
-    """3단계: AI 분석"""
+def run_stage2_rag(project_root: str, chunk_size: int, top_k: int, 
+                   status_placeholder, progress_bar, reindex: bool = False):
+    """2단계-RAG: 의미 기반 코드 검색"""
     try:
-        status_placeholder.info(f"🤖 [3단계] AI 분석 중 ({llm_type} - {model_name})...")
-        progress_bar.progress(85)
+        status_placeholder.info("🧠 [2단계-RAG] 의미 기반 코드 검색 중...")
+        progress_bar.progress(60)
         
-        generator = AnalysisReportGenerator(
-            llm_type=llm_type,
-            model_name=model_name,
-            api_key=api_key if api_key else None,
-            use_mock=use_mock
+        extractor = RAGCodeExtractor(
+            project_root=project_root,
+            chunk_size=chunk_size,
+            top_k=top_k
         )
         time.sleep(0.3)
         
+        # 재인덱싱 옵션
+        if reindex and Path(extractor.vector_db_path).exists():
+            status_placeholder.info("🔄 벡터 DB 재생성 중...")
+            import shutil
+            shutil.rmtree(extractor.vector_db_path)
+        
+        progress_bar.progress(70)
+        contexts = extractor.process_parsed_errors()
+        
+        progress_bar.progress(80)
+        
+        # 통계 계산
+        total_searches = sum(len(c.get('search_results', [])) for c in contexts.values())
+        
+        result = {
+            "success": True,
+            "total_searches": total_searches,
+            "contexts": contexts,
+            "method": "rag",
+            "chunk_size": chunk_size,
+            "top_k": top_k
+        }
+        
+        status_placeholder.success(f"✅ [2단계-RAG] 완료: {total_searches}개 검색 완료")
+        return result
+        
+    except Exception as e:
+        status_placeholder.error(f"❌ [2단계-RAG] 실패: {str(e)}")
+        st.error(traceback.format_exc())
+        return {"success": False, "error": str(e)}
+
+
+def run_stage3(llm_type: str, model_name: str, api_key: str, use_mock: bool, 
+               status_placeholder, progress_bar, use_rag: bool = False):
+    """3단계: AI 분석"""
+    try:
+        method_label = "RAG" if use_rag else "Traditional"
+        status_placeholder.info(f"🤖 [3단계-{method_label}] AI 분석 중 ({llm_type} - {model_name})...")
+        progress_bar.progress(85)
+        
+        if use_rag:
+            generator = RAGAnalysisReportGenerator(
+                llm_type=llm_type,
+                model_name=model_name,
+                api_key=api_key if api_key else None,
+                use_mock=use_mock
+            )
+            contexts_path = "output/step2_rag_contexts.json"
+        else:
+            generator = AnalysisReportGenerator(
+                llm_type=llm_type,
+                model_name=model_name,
+                api_key=api_key if api_key else None,
+                use_mock=use_mock
+            )
+            contexts_path = "output/step2_code_contexts.json"
+        
+        time.sleep(0.3)
+        
         progress_bar.progress(90)
-        report_count = generator.process_all_errors(
-            contexts_json_path="output/step2_code_contexts.json"
-        )
+        report_count = generator.process_all_errors(contexts_json_path=contexts_path)
         
         progress_bar.progress(100)
         
@@ -241,15 +316,17 @@ def run_stage3(llm_type: str, model_name: str, api_key: str, use_mock: bool,
             "report_count": report_count,
             "llm_type": llm_type,
             "model_name": model_name,
-            "use_mock": use_mock
+            "use_mock": use_mock,
+            "method": "rag" if use_rag else "traditional"
         }
         
         mode_str = "Mock 모드" if use_mock else f"{llm_type} ({model_name})"
-        status_placeholder.success(f"✅ [3단계] 완료: {report_count}개 리포트 생성 ({mode_str})")
+        status_placeholder.success(f"✅ [3단계-{method_label}] 완료: {report_count}개 리포트 생성 ({mode_str})")
         return result
         
     except Exception as e:
         status_placeholder.error(f"❌ [3단계] 실패: {str(e)}")
+        st.error(traceback.format_exc())
         return {"success": False, "error": str(e)}
 
 
@@ -282,22 +359,44 @@ def display_stage2_results(result):
         st.error(f"오류: {result.get('error', '알 수 없는 오류')}")
         return
     
-    st.markdown("### 📊 2단계 결과")
+    method = result.get("method", "traditional")
+    method_label = "🧠 RAG 기반" if method == "rag" else "⚡ Traditional"
+    st.markdown(f"### 📊 2단계 결과 ({method_label})")
     
-    col1, col2, col3 = st.columns(3)
-    col1.metric("🔍 추출 시도", result["total_contexts"])
-    col2.metric("✅ 성공", result["successful"], delta=None)
-    col3.metric("❌ 실패", result["failed"], delta=None if result["failed"] == 0 else -result["failed"])
+    if method == "rag":
+        col1, col2, col3 = st.columns(3)
+        col1.metric("🔍 검색 수", result["total_searches"])
+        col2.metric("📦 청크 크기", result["chunk_size"])
+        col3.metric("🎯 Top-K", result["top_k"])
+    else:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("🔍 추출 시도", result["total_contexts"])
+        col2.metric("✅ 성공", result["successful"], delta=None)
+        col3.metric("❌ 실패", result["failed"], delta=None if result["failed"] == 0 else -result["failed"])
     
     # 상세 결과
     with st.expander("📋 상세 결과 보기"):
-        for email_file, data in result["contexts"].items():
-            st.markdown(f"**{email_file}**")
-            for ctx in data['contexts']:
-                if ctx.get('success'):
-                    st.success(f"✅ {ctx['class_name']}.{ctx['method']}() - 라인 {ctx['context_start']}-{ctx['context_end']}")
-                else:
-                    st.error(f"❌ {ctx['class_name']}.{ctx['method']}() - {ctx.get('error', '실패')}")
+        if method == "rag":
+            for email_file, data in result["contexts"].items():
+                st.markdown(f"**{email_file}**")
+                search_results = data.get('search_results', [])
+                for i, search in enumerate(search_results, 1):
+                    query = search.get('search_query', 'N/A')
+                    codes = search.get('found_codes', [])
+                    st.info(f"🔍 검색 {i}: {query}")
+                    if codes:
+                        for code in codes[:3]:  # Top 3
+                            similarity = code.get('similarity', 0)
+                            file_path = code.get('file_path', 'Unknown')
+                            st.write(f"  - {file_path} (유사도: {similarity:.2%})")
+        else:
+            for email_file, data in result["contexts"].items():
+                st.markdown(f"**{email_file}**")
+                for ctx in data['contexts']:
+                    if ctx.get('success'):
+                        st.success(f"✅ {ctx['class_name']}.{ctx.get('method', 'Unknown')}() - 라인 {ctx['context_start']}-{ctx['context_end']}")
+                    else:
+                        st.error(f"❌ {ctx['class_name']}.{ctx.get('method', 'Unknown')}() - {ctx.get('error', '실패')}")
 
 
 def display_stage3_results(result):
@@ -347,13 +446,37 @@ def main():
     st.markdown("---")
     
     # 워크플로우 다이어그램
-    show_workflow_diagram()
+    show_workflow_diagram(use_rag)
     st.markdown("---")
     
     # 사이드바 설정
     with st.sidebar:
         st.header("⚙️ 설정")
         
+        st.subheader("🎯 분석 방법")
+        analysis_method = st.radio(
+            "검색 방식 선택",
+            ["⚡ Traditional (정확 탐색)", "🧠 RAG (의미 검색)"],
+            help="Traditional: Stack Trace 있을 때 | RAG: Stack Trace 없을 때"
+        )
+        use_rag = "RAG" in analysis_method
+        
+        if use_rag:
+            st.info("""
+            💡 **RAG 모드**
+            - Stack Trace 없어도 OK
+            - 의미 기반 코드 검색
+            - 애매한 에러 대응
+            """)
+        else:
+            st.info("""
+            💡 **Traditional 모드**
+            - Stack Trace 필수
+            - 정확한 라인 번호
+            - 초고속 처리 (0.03초)
+            """)
+        
+        st.markdown("---")
         st.subheader("📂 프로젝트 설정")
         project_root = st.text_input(
             "Java 프로젝트 경로",
@@ -367,13 +490,35 @@ def main():
             help="에러 메일/로그 파일이 있는 폴더"
         )
         
-        context_lines = st.slider(
-            "컨텍스트 라인 수",
-            min_value=10,
-            max_value=100,
-            value=30,
-            help="에러 라인 기준 앞뒤로 추출할 라인 수"
-        )
+        if use_rag:
+            chunk_size = st.slider(
+                "청크 크기",
+                min_value=300,
+                max_value=1000,
+                value=500,
+                step=100,
+                help="코드를 나눌 청크의 크기 (문자 수)"
+            )
+            top_k = st.slider(
+                "Top-K 결과 수",
+                min_value=3,
+                max_value=10,
+                value=5,
+                help="유사도 높은 상위 K개 결과 반환"
+            )
+            reindex = st.checkbox(
+                "벡터 DB 재생성",
+                value=False,
+                help="코드 변경 시 체크"
+            )
+        else:
+            context_lines = st.slider(
+                "컨텍스트 라인 수",
+                min_value=10,
+                max_value=100,
+                value=30,
+                help="에러 라인 기준 앞뒤로 추출할 라인 수"
+            )
         
         st.markdown("---")
         st.subheader("🤖 LLM 설정")
@@ -440,14 +585,19 @@ def main():
             st.session_state.results['stage1'] = result1
             
             if result1.get("success"):
-                # 2단계 실행
-                result2 = run_stage2(project_root, context_lines, status_placeholder, progress_bar)
+                # 2단계 실행 (Traditional vs RAG)
+                if use_rag:
+                    result2 = run_stage2_rag(project_root, chunk_size, top_k, 
+                                           status_placeholder, progress_bar, reindex)
+                else:
+                    result2 = run_stage2(project_root, context_lines, status_placeholder, progress_bar)
+                
                 st.session_state.results['stage2'] = result2
                 
                 if result2.get("success"):
                     # 3단계 실행
                     result3 = run_stage3(llm_type, model_name, api_key, use_mock, 
-                                        status_placeholder, progress_bar)
+                                        status_placeholder, progress_bar, use_rag)
                     st.session_state.results['stage3'] = result3
             
             elapsed = time.time() - start_time
