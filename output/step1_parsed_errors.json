@@ -1,0 +1,166 @@
+{
+  "database_error.log": {
+    "has_error": true,
+    "exceptions": [
+      {
+        "exception": "org.springframework.dao.DataAccessException",
+        "message": "Could not execute statement"
+      },
+      {
+        "exception": "java.sql.SQLSyntaxErrorException",
+        "message": "Table 'ax_db.products' doesn't exist"
+      }
+    ],
+    "stack_traces": [
+      {
+        "full_class": "com.hanwha.ax.repository.ProductRepository",
+        "package": "com.hanwha.ax.repository",
+        "class_name": "ProductRepository",
+        "method": "findProductById",
+        "file": "ProductRepository.java",
+        "line": 234
+      },
+      {
+        "full_class": "com.hanwha.ax.service.ProductService",
+        "package": "com.hanwha.ax.service",
+        "class_name": "ProductService",
+        "method": "getProductDetails",
+        "file": "ProductService.java",
+        "line": 112
+      },
+      {
+        "full_class": "com.hanwha.ax.service.OrderService",
+        "package": "com.hanwha.ax.service",
+        "class_name": "OrderService",
+        "method": "validateOrderItems",
+        "file": "OrderService.java",
+        "line": 156
+      },
+      {
+        "full_class": "com.hanwha.ax.service.OrderService",
+        "package": "com.hanwha.ax.service",
+        "class_name": "OrderService",
+        "method": "createOrder",
+        "file": "OrderService.java",
+        "line": 78
+      },
+      {
+        "full_class": "com.hanwha.ax.controller.OrderController",
+        "package": "com.hanwha.ax.controller",
+        "class_name": "OrderController",
+        "method": "submitOrder",
+        "file": "OrderController.java",
+        "line": 45
+      },
+      {
+        "full_class": "com.mysql.cj.jdbc.exceptions.SQLError",
+        "package": "com.mysql.cj.jdbc.exceptions",
+        "class_name": "SQLError",
+        "method": "createSQLException",
+        "file": "SQLError.java",
+        "line": 120
+      },
+      {
+        "full_class": "com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping",
+        "package": "com.mysql.cj.jdbc.exceptions",
+        "class_name": "SQLExceptionsMapping",
+        "method": "translateException",
+        "file": "SQLExceptionsMapping.java",
+        "line": 122
+      },
+      {
+        "full_class": "com.hanwha.ax.config.DatabaseConfig",
+        "package": "com.hanwha.ax.config",
+        "class_name": "DatabaseConfig",
+        "method": "executeQuery",
+        "file": "DatabaseConfig.java",
+        "line": 89
+      }
+    ],
+    "raw_text": "2026-05-21 14:45:23 ERROR [http-nio-8080-exec-5] DatabaseException occurred\n\norg.springframework.dao.DataAccessException: Could not execute statement\n\tat com.hanwha.ax.repository.ProductRepository.findProductById(ProductRepository.java:234)\n\tat com.hanwha.ax.service.ProductService.getProductDetails(ProductService.java:112)\n\tat com.hanwha.ax.service.OrderService.validateOrderItems(OrderService.java:156)\n\tat com.hanwha.ax.service.OrderService.createOrder(OrderService.java:78)\n\tat com.hanwha.ax.con"
+  },
+  "sample_error.txt": {
+    "has_error": true,
+    "exceptions": [
+      {
+        "exception": "java.lang.NullPointerException",
+        "message": "Cannot invoke \"String.length()\" because \"customerName\" is null"
+      }
+    ],
+    "stack_traces": [
+      {
+        "full_class": "com.hanwha.ax.service.CustomerService",
+        "package": "com.hanwha.ax.service",
+        "class_name": "CustomerService",
+        "method": "validateCustomerData",
+        "file": "CustomerService.java",
+        "line": 145
+      },
+      {
+        "full_class": "com.hanwha.ax.service.CustomerService",
+        "package": "com.hanwha.ax.service",
+        "class_name": "CustomerService",
+        "method": "processCustomerOrder",
+        "file": "CustomerService.java",
+        "line": 89
+      },
+      {
+        "full_class": "com.hanwha.ax.controller.OrderController",
+        "package": "com.hanwha.ax.controller",
+        "class_name": "OrderController",
+        "method": "createOrder",
+        "file": "OrderController.java",
+        "line": 67
+      },
+      {
+        "full_class": "jdk.internal.reflect.NativeMethodAccessorImpl",
+        "package": "jdk.internal.reflect",
+        "class_name": "NativeMethodAccessorImpl",
+        "method": "invoke",
+        "file": "NativeMethodAccessorImpl.java",
+        "line": 62
+      },
+      {
+        "full_class": "jdk.internal.reflect.DelegatingMethodAccessorImpl",
+        "package": "jdk.internal.reflect",
+        "class_name": "DelegatingMethodAccessorImpl",
+        "method": "invoke",
+        "file": "DelegatingMethodAccessorImpl.java",
+        "line": 43
+      },
+      {
+        "full_class": "java.lang.reflect.Method",
+        "package": "java.lang.reflect",
+        "class_name": "Method",
+        "method": "invoke",
+        "file": "Method.java",
+        "line": 566
+      },
+      {
+        "full_class": "org.springframework.web.method.support.InvocableHandlerMethod",
+        "package": "org.springframework.web.method.support",
+        "class_name": "InvocableHandlerMethod",
+        "method": "doInvoke",
+        "file": "InvocableHandlerMethod.java",
+        "line": 190
+      },
+      {
+        "full_class": "org.springframework.web.method.support.InvocableHandlerMethod",
+        "package": "org.springframework.web.method.support",
+        "class_name": "InvocableHandlerMethod",
+        "method": "invokeForRequest",
+        "file": "InvocableHandlerMethod.java",
+        "line": 138
+      },
+      {
+        "full_class": "org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod",
+        "package": "org.springframework.web.servlet.mvc.method.annotation",
+        "class_name": "ServletInvocableHandlerMethod",
+        "method": "invokeAndHandle",
+        "file": "ServletInvocableHandlerMethod.java",
+        "line": 105
+      }
+    ],
+    "raw_text": "Subject: [긴급] 운영계 서버 에러 발생 - NullPointerException\n\n안녕하세요,\n\n오늘 오후 2시 30분경 운영계 서버에서 다음과 같은 에러가 발생했습니다.\n\n========================================\n에러 로그:\n========================================\n\njava.lang.NullPointerException: Cannot invoke \"String.length()\" because \"customerName\" is null\n\tat com.hanwha.ax.service.CustomerService.validateCustomerData(CustomerService.java:145)\n\tat com.hanwha.ax.service.CustomerService.processCustomerOrder(CustomerService.java:89)\n\tat com.hanwha.ax.controller.OrderCo"
+  }
+}

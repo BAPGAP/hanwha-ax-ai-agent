@@ -1,0 +1,346 @@
+{
+  "database_error.log": {
+    "email_file": "database_error.log",
+    "exceptions": [
+      {
+        "exception": "org.springframework.dao.DataAccessException",
+        "message": "Could not execute statement"
+      },
+      {
+        "exception": "java.sql.SQLSyntaxErrorException",
+        "message": "Table 'ax_db.products' doesn't exist"
+      }
+    ],
+    "contexts": [
+      {
+        "success": false,
+        "class_name": "ProductRepository",
+        "error": "ProductRepository.java 파일을 찾을 수 없습니다."
+      },
+      {
+        "success": false,
+        "class_name": "ProductService",
+        "error": "ProductService.java 파일을 찾을 수 없습니다."
+      },
+      {
+        "success": false,
+        "class_name": "OrderService",
+        "error": "OrderService.java 파일을 찾을 수 없습니다."
+      },
+      {
+        "success": false,
+        "class_name": "OrderService",
+        "error": "OrderService.java 파일을 찾을 수 없습니다."
+      },
+      {
+        "success": true,
+        "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+        "total_lines": 47,
+        "error_line": 45,
+        "context_start": 15,
+        "context_end": 47,
+        "context_lines": [
+          {
+            "line_number": 15,
+            "content": "    ",
+            "is_error_line": false
+          },
+          {
+            "line_number": 16,
+            "content": "    @Autowired",
+            "is_error_line": false
+          },
+          {
+            "line_number": 17,
+            "content": "    private CustomerService customerService;",
+            "is_error_line": false
+          },
+          {
+            "line_number": 18,
+            "content": "    ",
+            "is_error_line": false
+          },
+          {
+            "line_number": 19,
+            "content": "    /**",
+            "is_error_line": false
+          },
+          {
+            "line_number": 20,
+            "content": "     * 새 주문 생성",
+            "is_error_line": false
+          },
+          {
+            "line_number": 21,
+            "content": "     */",
+            "is_error_line": false
+          },
+          {
+            "line_number": 22,
+            "content": "    @PostMapping(\"/create\")",
+            "is_error_line": false
+          },
+          {
+            "line_number": 23,
+            "content": "    public Order createOrder(@RequestBody OrderRequest request) {",
+            "is_error_line": false
+          },
+          {
+            "line_number": 24,
+            "content": "        // 고객 정보 조회",
+            "is_error_line": false
+          },
+          {
+            "line_number": 25,
+            "content": "        Customer customer = new Customer();",
+            "is_error_line": false
+          },
+          {
+            "line_number": 26,
+            "content": "        customer.setId(request.getCustomerId());",
+            "is_error_line": false
+          },
+          {
+            "line_number": 27,
+            "content": "        customer.setName(request.getCustomerName());",
+            "is_error_line": false
+          },
+          {
+            "line_number": 28,
+            "content": "        customer.setEmail(request.getCustomerEmail());",
+            "is_error_line": false
+          },
+          {
+            "line_number": 29,
+            "content": "        ",
+            "is_error_line": false
+          },
+          {
+            "line_number": 30,
+            "content": "        // 주문 생성",
+            "is_error_line": false
+          },
+          {
+            "line_number": 31,
+            "content": "        Order order = new Order();",
+            "is_error_line": false
+          },
+          {
+            "line_number": 32,
+            "content": "        order.setProductId(request.getProductId());",
+            "is_error_line": false
+          },
+          {
+            "line_number": 33,
+            "content": "        order.setQuantity(request.getQuantity());",
+            "is_error_line": false
+          },
+          {
+            "line_number": 34,
+            "content": "        ",
+            "is_error_line": false
+          },
+          {
+            "line_number": 35,
+            "content": "        // 주문 처리 - Line 67에서 CustomerService 호출",
+            "is_error_line": false
+          },
+          {
+            "line_number": 36,
+            "content": "        return customerService.processCustomerOrder(customer, order);",
+            "is_error_line": false
+          },
+          {
+            "line_number": 37,
+            "content": "    }",
+            "is_error_line": false
+          },
+          {
+            "line_number": 38,
+            "content": "    ",
+            "is_error_line": false
+          },
+          {
+            "line_number": 39,
+            "content": "    /**",
+            "is_error_line": false
+          },
+          {
+            "line_number": 40,
+            "content": "     * 주문 제출",
+            "is_error_line": false
+          },
+          {
+            "line_number": 41,
+            "content": "     */",
+            "is_error_line": false
+          },
+          {
+            "line_number": 42,
+            "content": "    @PostMapping(\"/submit\")",
+            "is_error_line": false
+          },
+          {
+            "line_number": 43,
+            "content": "    public Order submitOrder(@RequestBody Order order) {",
+            "is_error_line": false
+          },
+          {
+            "line_number": 44,
+            "content": "        // 주문 제출 로직",
+            "is_error_line": false
+          },
+          {
+            "line_number": 45,
+            "content": "        return order;",
+            "is_error_line": true
+          },
+          {
+            "line_number": 46,
+            "content": "    }",
+            "is_error_line": false
+          },
+          {
+            "line_number": 47,
+            "content": "}",
+            "is_error_line": false
+          }
+        ],
+        "raw_code": "    \n    @Autowired\n    private CustomerService customerService;\n    \n    /**\n     * 새 주문 생성\n     */\n    @PostMapping(\"/create\")\n    public Order createOrder(@RequestBody OrderRequest request) {\n        // 고객 정보 조회\n        Customer customer = new Customer();\n        customer.setId(request.getCustomerId());\n        customer.setName(request.getCustomerName());\n        customer.setEmail(request.getCustomerEmail());\n        \n        // 주문 생성\n        Order order = new Order();\n        order.setProductId(request.getProductId());\n        order.setQuantity(request.getQuantity());\n        \n        // 주문 처리 - Line 67에서 CustomerService 호출\n        return customerService.processCustomerOrder(customer, order);\n    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직\n        return order;\n    }\n}\n",
+        "class_name": "OrderController",
+        "package": "com.hanwha.ax.controller",
+        "method": "submitOrder",
+        "full_class": "com.hanwha.ax.controller.OrderController"
+      },
+      {
+        "success": false,
+        "class_name": "DatabaseConfig",
+        "error": "DatabaseConfig.java 파일을 찾을 수 없습니다."
+      }
+    ],
+    "total_traces": 8,
+    "extracted_contexts": 6
+  },
+  "sample_error.txt": {
+    "email_file": "sample_error.txt",
+    "exceptions": [
+      {
+        "exception": "java.lang.NullPointerException",
+        "message": "Cannot invoke \"String.length()\" because \"customerName\" is null"
+      }
+    ],
+    "contexts": [
+      {
+        "success": true,
+        "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+        "total_lines": 60,
+        "error_line": 145,
+        "context_start": 115,
+        "context_end": 60,
+        "context_lines": [],
+        "raw_code": "",
+        "class_name": "CustomerService",
+        "package": "com.hanwha.ax.service",
+        "method": "validateCustomerData",
+        "full_class": "com.hanwha.ax.service.CustomerService"
+      },
+      {
+        "success": true,
+        "file_path": "example_project\\src\\com\\hanwha\\ax\\service\\CustomerService.java",
+        "total_lines": 60,
+        "error_line": 89,
+        "context_start": 59,
+        "context_end": 60,
+        "context_lines": [
+          {
+            "line_number": 59,
+            "content": "    }",
+            "is_error_line": false
+          },
+          {
+            "line_number": 60,
+            "content": "}",
+            "is_error_line": false
+          }
+        ],
+        "raw_code": "    }\n}\n",
+        "class_name": "CustomerService",
+        "package": "com.hanwha.ax.service",
+        "method": "processCustomerOrder",
+        "full_class": "com.hanwha.ax.service.CustomerService"
+      },
+      {
+        "success": true,
+        "file_path": "example_project\\src\\com\\hanwha\\ax\\controller\\OrderController.java",
+        "total_lines": 47,
+        "error_line": 67,
+        "context_start": 37,
+        "context_end": 47,
+        "context_lines": [
+          {
+            "line_number": 37,
+            "content": "    }",
+            "is_error_line": false
+          },
+          {
+            "line_number": 38,
+            "content": "    ",
+            "is_error_line": false
+          },
+          {
+            "line_number": 39,
+            "content": "    /**",
+            "is_error_line": false
+          },
+          {
+            "line_number": 40,
+            "content": "     * 주문 제출",
+            "is_error_line": false
+          },
+          {
+            "line_number": 41,
+            "content": "     */",
+            "is_error_line": false
+          },
+          {
+            "line_number": 42,
+            "content": "    @PostMapping(\"/submit\")",
+            "is_error_line": false
+          },
+          {
+            "line_number": 43,
+            "content": "    public Order submitOrder(@RequestBody Order order) {",
+            "is_error_line": false
+          },
+          {
+            "line_number": 44,
+            "content": "        // 주문 제출 로직",
+            "is_error_line": false
+          },
+          {
+            "line_number": 45,
+            "content": "        return order;",
+            "is_error_line": false
+          },
+          {
+            "line_number": 46,
+            "content": "    }",
+            "is_error_line": false
+          },
+          {
+            "line_number": 47,
+            "content": "}",
+            "is_error_line": false
+          }
+        ],
+        "raw_code": "    }\n    \n    /**\n     * 주문 제출\n     */\n    @PostMapping(\"/submit\")\n    public Order submitOrder(@RequestBody Order order) {\n        // 주문 제출 로직\n        return order;\n    }\n}\n",
+        "class_name": "OrderController",
+        "package": "com.hanwha.ax.controller",
+        "method": "createOrder",
+        "full_class": "com.hanwha.ax.controller.OrderController"
+      }
+    ],
+    "total_traces": 9,
+    "extracted_contexts": 3
+  }
+}
