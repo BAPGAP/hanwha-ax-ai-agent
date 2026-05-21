@@ -10,7 +10,36 @@
 
 ## 🚀 빠른 시작
 
-### ⚡ 방법 1: 통합 실행 (권장) - 한 줄로 끝!
+### 🎨 방법 1: Streamlit 웹 대시보드 (발표용 추천!) ⭐
+
+```bash
+# 1. 패키지 설치 (최초 1회)
+pip install streamlit requests
+
+# 2. 웹 대시보드 실행
+streamlit run app.py
+# → 자동으로 브라우저 오픈: http://localhost:8501
+
+# 3. 웹 UI에서:
+# - 설정 조정 (사이드바)
+# - '🚀 전체 실행' 버튼 클릭
+# - 실시간 진행 상황 확인
+# - 생성된 리포트 미리보기
+```
+
+**🎯 특징:**
+- ✅ 실시간 진행 상황 시각화 (Progress Bar)
+- ✅ 워크플로우 다이어그램 (3단계 흐름)
+- ✅ 단계별 Input/Output 표시
+- ✅ AI 모델 선택 UI (Ollama/OpenAI/Mock)
+- ✅ 리포트 미리보기 (Markdown 렌더링)
+- ✅ 발표/데모에 최적화된 UI
+
+📖 **자세한 사용법**: [docs/STREAMLIT_가이드.md](docs/STREAMLIT_가이드.md)
+
+---
+
+### ⚡ 방법 2: 터미널 통합 실행 - 한 줄로 끝!
 
 ```bash
 # 전체 3단계 한번에 실행 (Mock 모드)
@@ -29,7 +58,7 @@ python run_all.py --llm openai --model gpt-4 --api-key YOUR_KEY
 python run_all.py --help
 ```
 
-### 📋 방법 2: 단계별 실행 (커스터마이즈)
+### 📋 방법 3: 단계별 실행 (커스터마이즈)
 
 ```bash
 # 1단계: 이메일 파싱
@@ -49,7 +78,9 @@ explorer reports  # Windows
 
 ```
 ai-agent/
+├── app.py                          # 🎨 Streamlit 웹 대시보드 (발표용 UI)
 ├── run_all.py                      # ⚡ 통합 실행 스크립트 (전체 3단계 한번에!)
+├── requirements.txt                # Python 의존성 패키지
 ├── email/                          # 에러 메일/로그 파일 저장 폴더
 │   ├── sample_error.txt           # 샘플 에러 메일
 │   └── database_error.log         # 샘플 데이터베이스 에러 로그
@@ -80,7 +111,8 @@ ai-agent/
 │   ├── STEP1_완료.md             # 1단계 상세 문서
 │   ├── STEP2_완료.md             # 2단계 상세 문서
 │   ├── STEP3_완료.md             # 3단계 상세 문서
-│   └── LLM_설정_가이드.md        # Ollama/OpenAI 설정
+│   ├── LLM_설정_가이드.md        # Ollama/OpenAI 설정
+│   └── STREAMLIT_가이드.md       # 웹 대시보드 사용 가이드
 └── README.md                      # 프로젝트 설명
 ```
 
