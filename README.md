@@ -30,20 +30,24 @@
 
 ```bash
 # 1. 패키지 설치 (최초 1회)
-pip install streamlit requests
+pip install -r requirements.txt
 
 # 2. 웹 대시보드 실행
 streamlit run app.py
 # → 자동으로 브라우저 오픈: http://localhost:8501
 
 # 3. 웹 UI에서:
-# - 설정 조정 (사이드바)
-# - '🚀 전체 실행' 버튼 클릭
-# - 실시간 진행 상황 확인
-# - 생성된 리포트 미리보기
+# ✅ 분석 방법 선택: Traditional vs RAG 
+# ✅ 설정 조정 (사이드바)
+# ✅ '🚀 전체 실행' 버튼 클릭
+# ✅ 실시간 진행 상황 확인
+# ✅ 생성된 리포트 미리보기
 ```
 
 **🎯 특징:**
+- ✅ **RAG vs Traditional 선택 가능** ⭐ NEW!
+  - Traditional: Stack Trace 있을 때 (0.03초)
+  - RAG: Stack Trace 없을 때 (의미 검색)
 - ✅ 실시간 진행 상황 시각화 (Progress Bar)
 - ✅ 워크플로우 다이어그램 (3단계 흐름)
 - ✅ 단계별 Input/Output 표시

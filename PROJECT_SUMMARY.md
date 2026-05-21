@@ -22,11 +22,13 @@
 - 🎯 **적용 대상**: Stack Trace 없는 애매한 에러 ("화면에서 오류 발생" 같은 현업 실제 케이스)
 
 ### 3️⃣ 웹 대시보드 (Streamlit)
+- ✅ **Traditional vs RAG 선택 UI** ⭐ NEW!
 - ✅ **실시간 진행 상황**: Progress Bar로 각 단계 시각화
-- ✅ **워크플로우 다이어그램**: 3단계 흐름 Mermaid 차트
-- ✅ **인터랙티브 설정**: 사이드바에서 LLM, 모델 선택
+- ✅ **워크플로우 다이어그램**: 3단계 흐름 Mermaid 차트 (모드별 표시)
+- ✅ **인터랙티브 설정**: 사이드바에서 LLM, 모델, 분석 방법 선택
+- ✅ **RAG 전용 설정**: 청크 크기, Top-K, 벡터 DB 재생성
 - ✅ **리포트 미리보기**: Markdown 렌더링
-- 🎨 **용도**: 발표, 데모, 시연
+- 🎨 **용도**: 발표, 데모, 시연 (RAG vs Traditional 비교 데모 가능)
 
 ### 4️⃣ 통합 실행 시스템
 - ✅ **run_all.py**: 기본 방식 전체 3단계 한 번에 실행
@@ -311,6 +313,8 @@ ai-agent.zip
 ## Git 커밋 이력
 
 ```
+commit 3d296ab - feat: Integrate RAG mode into Streamlit dashboard
+commit 26b3977 - docs: Add comprehensive project summary
 commit 9b5b397 - docs: Update README with RAG system information
 commit 8c64308 - feat: Implement RAG-based semantic code search system
 commit 77cd3fb - feat: Add Streamlit web dashboard for presentations
