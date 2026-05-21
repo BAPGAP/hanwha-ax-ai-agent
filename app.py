@@ -16,11 +16,10 @@ import traceback
 # src 디렉토리를 Python 경로에 추가
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
+# 기본 모듈만 먼저 임포트 (RAG 모듈은 사용할 때 lazy import)
 from step1_email_parser import EmailParser
 from step2_code_extractor import CodeExtractor
-from step2_rag_extractor import RAGCodeExtractor
 from step3_analysis_report import AnalysisReportGenerator
-from step3_rag_analysis import RAGAnalysisReportGenerator
 
 
 # 페이지 설정
@@ -237,6 +236,9 @@ def run_stage2_rag(project_root: str, chunk_size: int, top_k: int,
                    status_placeholder, progress_bar, reindex: bool = False):
     """2단계-RAG: 의미 기반 코드 검색"""
     try:
+        # Lazy import: RAG 모듈은 사용할 때만 임포트
+        from step2_rag_extractor import RAGCodeExtractor
+        
         status_placeholder.info("🧠 [2단계-RAG] 의미 기반 코드 검색 중...")
         progress_bar.progress(60)
         
@@ -288,6 +290,9 @@ def run_stage3(llm_type: str, model_name: str, api_key: str, use_mock: bool,
         progress_bar.progress(85)
         
         if use_rag:
+            # Lazy import: RAG 분석 모듈은 사용할 때만 임포트
+            from step3_rag_analysis import RAGAnalysisReportGenerator
+            
             generator = RAGAnalysisReportGenerator(
                 llm_type=llm_type,
                 model_name=model_name,
