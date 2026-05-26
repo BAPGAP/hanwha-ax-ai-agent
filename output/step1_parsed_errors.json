@@ -1,15 +1,15 @@
 {
   "증권번호 조회 화면 오류.eml": {
-    "error_summary": "증권번호 조회 화면에서 전체 조회 시 조회 결과에 10건만 표시되고, 총 18건이라고 표시되는 오류가 발생했습니다. 이로 인해 사용자는 일부 데이터만 확인하게 되어 데이터의 완전성이 손상됩니다.",
-    "error_type": "Exception",
-    "error_message": "증권 조회 화면에서 전체 조회를 누를 때 조회 결과에 10건만 확인이 되고, 총 18건이라고 뜨는 오류",
+    "error_summary": "증권번호 조회 화면에서 전체 조회 시 10건만 표시되고 총 18건이라고 뜨는 오류가 발생했습니다.",
+    "error_type": "UnknownException",
+    "error_message": "증권 조회 회면에서 전체조회를 누르면 조회결과에 10건만 확인이 되는데 총 18건이라고 뜨네요.",
     "severity": "HIGH",
     "affected_components": [],
-    "root_cause": "데이터 페이징 로직 또는 UI 표시 로직의 버그로 전체 건수를 올바르게 렌더링하지 못하고 일부만 표시되는 것으로 추정됩니다.",
+    "root_cause": "데이터 페이징 문제로 추정됩니다.",
     "search_queries": [
-      "증권번호 조회 화면 페이징",
-      "조회 결과 건수 불일치",
-      "데이터 표시 오류"
+      "증권번호 조회",
+      "데이터 페이징 오류",
+      "조회 결과 불일치"
     ],
     "has_stack_trace": false,
     "has_attachment": true,
@@ -20,8 +20,8 @@
     "stack_traces": [],
     "exceptions": [
       {
-        "exception": "Exception",
-        "message": "증권 조회 화면에서 전체 조회를 누를 때 조회 결과에 10건만 확인이 되고, 총 18건이라고 뜨는 오류"
+        "exception": "UnknownException",
+        "message": "증권 조회 회면에서 전체조회를 누르면 조회결과에 10건만 확인이 되는데 총 18건이라고 뜨네요."
       }
     ]
   }
