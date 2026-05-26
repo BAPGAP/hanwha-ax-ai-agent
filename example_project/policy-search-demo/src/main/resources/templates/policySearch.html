@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>증권조회 | 한화AX</title>
+    <style>
+        /* ===============================================================
+           전체 레이아웃
+        =============================================================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            font-size: 13px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* 헤더 */
+        .header {
+            background: linear-gradient(135deg, #e8391e 0%, #c0271a 100%);
+            color: white;
+            padding: 0 24px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .header-logo {
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .header-title {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            padding: 20px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 페이지 타이틀 */
+        .page-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8391e;
+        }
+        .page-title::before {
+            content: '■ ';
+            color: #e8391e;
+        }
+
+        /* ===============================================================
+           [화면] 조회조건 영역 (PSI로 전달되는 파라미터)
+        =============================================================== */
+        .search-box {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .search-box-title {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .search-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-field label {
+            font-weight: bold;
+            color: #444;
+            min-width: 90px;
+            white-space: nowrap;
+        }
+        .search-field label::after {
+            content: ':';
+        }
+        .search-field input {
+            height: 30px;
+            padding: 0 10px;
+            border: 1px solid #bbb;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+            width: 160px;
+            transition: border-color 0.2s;
+        }
+        .search-field input:focus {
+            outline: none;
+            border-color: #e8391e;
+            box-shadow: 0 0 0 2px rgba(232,57,30,0.15);
+        }
+        .search-field input::placeholder {
+            color: #bbb;
+            font-size: 12px;
+        }
+
+        /* 버튼 영역 */
+        .btn-area {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+        }
+        .btn {
+            height: 30px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.15s;
+        }
+        .btn-search {
+            background-color: #e8391e;
+            color: white;
+        }
+        .btn-search:hover { background-color: #c0271a; }
+        .btn-reset {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-reset:hover { background-color: #545b62; }
+
+        /* ===============================================================
+           [화면] 조회결과 영역
+        =============================================================== */
+        .result-box {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .result-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .result-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .result-count {
+            font-size: 12px;
+            color: #666;
+        }
+        .result-count strong {
+            color: #e8391e;
+            font-size: 14px;
+        }
+
+        /* 결과 테이블 */
+        .result-table-wrap {
+            overflow-x: auto;
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+        .result-table thead th {
+            background-color: #3d4a5c;
+            color: white;
+            padding: 9px 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            border-right: 1px solid #4e5c70;
+        }
+        .result-table thead th:last-child { border-right: none; }
+        .result-table tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.1s;
+        }
+        .result-table tbody tr:hover { background-color: #fff5f3; }
+        .result-table tbody tr:nth-child(even) { background-color: #fafafa; }
+        .result-table tbody tr:nth-child(even):hover { background-color: #fff5f3; }
+        .result-table tbody td {
+            padding: 8px 10px;
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            white-space: nowrap;
+            border-right: 1px solid #f0f0f0;
+        }
+        .result-table tbody td:last-child { border-right: none; }
+        .result-table tbody td.left { text-align: left; }
+        .result-table tbody td.right { text-align: right; }
+
+        /* 링크 스타일 */
+        .policy-link {
+            color: #e8391e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .policy-link:hover { text-decoration: underline; }
+
+        /* 상태 뱃지 */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status-N { background-color: #d4edda; color: #155724; } /* 정상 */
+        .status-E { background-color: #fff3cd; color: #856404; } /* 실효 */
+        .status-T { background-color: #f8d7da; color: #721c24; } /* 해지 */
+        .status-X { background-color: #e2e3e5; color: #383d41; } /* 만기 */
+
+        /* 데이터 없음 */
+        .no-data {
+            padding: 50px;
+            text-align: center;
+            color: #aaa;
+            font-size: 14px;
+        }
+        .no-data::before {
+            content: '🔍 ';
+        }
+
+        /* 초기 안내 메시지 */
+        .guide-message {
+            padding: 40px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .search-form { flex-direction: column; align-items: flex-start; }
+            .btn-area { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== 헤더 ===== -->
+<div class="header">
+    <div class="header-logo">한화AX</div>
+    <div class="header-title">증권관리시스템</div>
+</div>
+
+<div class="main-content">
+
+    <!-- ===== 페이지 타이틀 ===== -->
+    <div class="page-title">증권조회</div>
+
+    <!-- ===== [화면] 조회조건 영역 ===== -->
+    <!--
+        [화면 → PSI 전달 파라미터]
+        - policyNo      : 증권번호
+        - customerName  : 고객명
+        - customerRrn   : 고객 주민등록번호
+        → POST /policy/search 로 전송 → PolicySearchPSI.policySearch() 호출
+    -->
+    <div class="search-box">
+        <div class="search-box-title">[ 조회조건 ] 하나 이상의 조건을 입력 후 조회하세요. (미입력 시 전체 조회)</div>
+        <form th:action="@{/policy/search}" th:object="${searchVO}" method="post" class="search-form" id="searchForm">
+            <!-- 조건 1: 증권번호 -->
+            <div class="search-field">
+                <label for="policyNo">증권번호</label>
+                <input type="text" id="policyNo" name="policyNo"
+                       th:value="${searchVO?.policyNo}"
+                       placeholder="예) P20230001"
+                       maxlength="20"/>
+            </div>
+            <!-- 조건 2: 고객명 -->
+            <div class="search-field">
+                <label for="customerName">고객명</label>
+                <input type="text" id="customerName" name="customerName"
+                       th:value="${searchVO?.customerName}"
+                       placeholder="예) 김영수"
+                       maxlength="20"/>
+            </div>
+            <!-- 조건 3: 주민등록번호 -->
+            <div class="search-field">
+                <label for="customerRrn">주민등록번호</label>
+                <input type="text" id="customerRrn" name="customerRrn"
+                       th:value="${searchVO?.customerRrn}"
+                       placeholder="예) 800101-1234567"
+                       maxlength="14"
+                       autocomplete="off"/>
+            </div>
+            <!-- 버튼 영역 -->
+            <div class="btn-area">
+                <button type="submit" class="btn btn-search">조 회</button>
+                <button type="button" class="btn btn-reset" onclick="resetForm()">초 기 화</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ===== [화면] 조회결과 영역 ===== -->
+    <!--
+        [PSI → 화면 전달 데이터]
+        - resultList   : List<PolicySearchResultVO> (DSI에서 반환)
+        - totalCount   : 전체 건수
+        - searchExecuted : 조회 실행 여부
+    -->
+    <div class="result-box">
+        <div class="result-header">
+            <div class="result-title">조회결과</div>
+            <div class="result-count" th:if="${searchExecuted}">
+                총 <strong th:text="${totalCount}">0</strong> 건
+            </div>
+        </div>
+
+        <!-- 조회 전 안내 -->
+        <div class="guide-message" th:unless="${searchExecuted}">
+            조회조건을 입력 후 <strong>[조 회]</strong> 버튼을 클릭하세요.
+        </div>
+
+        <!-- 조회 결과 없음 -->
+        <div class="no-data"
+             th:if="${searchExecuted and (resultList == null or #lists.isEmpty(resultList))}">
+            조회된 데이터가 없습니다.
+        </div>
+
+        <!-- 결과 테이블 -->
+        <div class="result-table-wrap"
+             th:if="${searchExecuted and resultList != null and !#lists.isEmpty(resultList)}">
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>증권번호</th>
+                        <th>상품명</th>
+                        <th>고객명</th>
+                        <th>주민등록번호</th>
+                        <th>계약일자</th>
+                        <th>보험시작일</th>
+                        <th>보험만기일</th>
+                        <th>가입기간</th>
+                        <th>월 보험료</th>
+                        <th>보장금액</th>
+                        <th>납입주기</th>
+                        <th>납입방법</th>
+                        <th>계약상태</th>
+                        <th>담당지점</th>
+                        <th>담당설계사</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, stat : ${resultList}">
+                        <!-- No. -->
+                        <td th:text="${stat.index + 1}">1</td>
+                        <!-- 증권번호 (클릭 시 상세 조회 가능 - 확장 포인트) -->
+                        <td>
+                            <a href="#" class="policy-link"
+                               th:text="${item.policyNo}"
+                               th:data-policy-no="${item.policyNo}"
+                               onclick="showDetail(this.dataset.policyNo)">
+                                P20230001
+                            </a>
+                        </td>
+                        <!-- 상품명 -->
+                        <td class="left" th:text="${item.productName}">한화생명 종신보험</td>
+                        <!-- 고객명 -->
+                        <td th:text="${item.customerName}">홍길동</td>
+                        <!-- 주민등록번호 (마스킹 처리) -->
+                        <td th:text="${item.customerRrnMasked}">800101-*******</td>
+                        <!-- 계약일자 -->
+                        <td th:text="${item.contractDate}">2023-01-15</td>
+                        <!-- 보험시작일 -->
+                        <td th:text="${item.startDate}">2023-01-15</td>
+                        <!-- 보험만기일 -->
+                        <td th:text="${item.endDate}">2063-01-15</td>
+                        <!-- 가입기간 -->
+                        <td th:text="${item.contractPeriod}">40년</td>
+                        <!-- 월 보험료 (숫자 포맷) -->
+                        <td class="right">
+                            <span th:text="${#numbers.formatInteger(item.monthlyPremium, 0, 'COMMA')}">85,000</span> 원
+                        </td>
+                        <!-- 보장금액 (숫자 포맷) -->
+                        <td class="right">
+                            <span th:text="${#numbers.formatInteger(item.coverageAmount, 0, 'COMMA')}">200,000,000</span> 원
+                        </td>
+                        <!-- 납입주기 -->
+                        <td th:text="${item.paymentCycle}">월납</td>
+                        <!-- 납입방법 -->
+                        <td th:text="${item.paymentMethod}">자동이체</td>
+                        <!-- 계약상태 (뱃지) -->
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="'status-' + ${item.contractStatusCode}"
+                                  th:text="${item.contractStatus}">정상</span>
+                        </td>
+                        <!-- 담당지점 -->
+                        <td th:text="${item.branchName}">강남지점</td>
+                        <!-- 담당설계사 -->
+                        <td th:text="${item.agentName}">김설계</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 초기화 버튼: 폼 필드 클리어 후 GET 방식으로 화면 초기화
+    function resetForm() {
+        document.getElementById('policyNo').value = '';
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerRrn').value = '';
+        window.location.href = '/policy/search';
+    }
+
+    // 증권번호 클릭 - 상세 조회 (확장 포인트)
+    function showDetail(policyNo) {
+        alert('증권번호: ' + policyNo + '\n\n상세조회 기능은 PolicySearchPSI.policyDetail()로 확장하세요.');
+    }
+
+    // 주민번호 자동 하이픈 입력
+    document.getElementById('customerRrn').addEventListener('input', function(e) {
+        let val = e.target.value.replace(/-/g, '');
+        if (val.length > 6) {
+            e.target.value = val.substring(0, 6) + '-' + val.substring(6, 13);
+        } else {
+            e.target.value = val;
+        }
+    });
+</script>
+
+</body>
+</html>

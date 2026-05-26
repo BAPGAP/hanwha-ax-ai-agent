@@ -1,624 +1,265 @@
-# AI Agent for Error Analysis
+# 🤖 AI Agent 에러 분석 시스템
 
-에러 메일을 분석하여 소스코드 상의 문제를 찾고 수정 제안을 제공하는 AI 에이전트
+Java 에러 이메일/로그를 받아 소스코드에서 원인을 찾고 AI 분석 리포트를 생성하는 시스템.
 
-## ✅ 전체 완료!
+---
 
-**[1단계]** ✅ 메일 파싱 및 에러 키워드 추출  
-**[2단계]** ✅ 소스코드 실시간 접근 및 컨텍스트 추출  
-**[2단계-RAG]** ✅ **의미 기반 코드 검색 시스템** ⭐ NEW!  
-**[3단계]** ✅ 원인 분석 및 수정 제안 리포트 생성  
+## 📐 아키텍처
 
-## 🎯 두 가지 분석 방법
+```
+이메일/로그 파일 (.eml / .log / .txt)
+        │
+        ▼
+┌─────────────────────────┐
+│  1단계: AI 메일 분석     │  LLM: Groq compound-beta
+│  step1_email_parser.py  │  출력: 오류 요약, 심각도, RAG 검색 키워드
+└────────────┬────────────┘
+             │ output/step1_parsed_errors.json
+             ▼
+┌─────────────────────────┐
+│  2단계: RAG 코드 검색    │  ChromaDB + all-MiniLM-L6-v2
+│  step2_rag_extractor.py │  출력: 유사 소스코드 청크 (유사도 순)
+└────────────┬────────────┘
+             │ output/step2_rag_contexts.json
+             ▼
+┌─────────────────────────┐
+│  3단계: AI 분석 리포트   │  LLM: Groq compound-beta
+│  step3_rag_analysis.py  │  출력: 통합 마크다운 리포트
+└─────────────────────────┘
+             │
+             ▼
+   reports/{YYYYMMDD_HHMMSS}_분석리포트_{이메일명}.md
+```
 
-### 🔍 기본 방식 (Traditional)
-- Stack Trace가 **명확한** 경우
-- 클래스명 + 라인 번호로 정확한 코드 찾기
-- 속도: ⚡ **초고속** (0.03초)
+**핵심 특징**
 
-### 🧠 RAG 방식 (Semantic Search) ⭐ NEW!
-- Stack Trace **없어도** 분석 가능!
-- **현업 실제 상황**: "화면에서 이런 오류 났어요" 같은 애매한 에러
-- 의미 기반 유사도 검색으로 관련 코드 자동 탐색
-- 벡터 DB + AI 임베딩 활용
+- Stack Trace가 없는 "화면에서 이런 오류 났어요" 수준의 메일도 분석 가능
+- **이메일 1개 → 리포트 파일 1개** (여러 검색 쿼리 결과를 페이지 형태로 통합)
+- 일부 쿼리 분석 실패 시에도 오류 메시지를 해당 섹션에 포함, 리포트 생성 계속
+- `429 Rate Limit` → 5·15·30초 자동 재시도
+- `413 Payload Too Large` → 프롬프트 절반 축소 후 자동 재시도
 
-**🔥 현업 실제 케이스**: "실제 현업에서 오는 메일은 오류 라인이나 클래스들을 알려주지 못하는 경우가 더 많아 단순히 화면에서 이런오류가 난다 이런수준" → RAG가 해결!  
+---
 
-## 🚀 빠른 시작
+## ⚡ 빠른 시작
 
-### 🎨 방법 1: Streamlit 웹 대시보드 (발표용 추천!) ⭐
+### 1. 환경 준비
 
-```bash
-# 1. 패키지 설치 (최초 1회)
+```powershell
+# 패키지 설치
 pip install -r requirements.txt
 
-# 2. 웹 대시보드 실행
-streamlit run app.py
-# → 자동으로 브라우저 오픈: http://localhost:8501
-
-# 3. 웹 UI에서:
-# ✅ 분석 방법 선택: Traditional vs RAG 
-# ✅ 설정 조정 (사이드바)
-# ✅ '🚀 전체 실행' 버튼 클릭
-# ✅ 실시간 진행 상황 확인
-# ✅ 생성된 리포트 미리보기
+# Groq API 키 발급: https://console.groq.com (무료)
+# .env 파일 생성
+Set-Content .env "GROQ_API_KEY=gsk_여기에_발급받은_키_입력"
 ```
 
-**🎯 특징:**
-- ✅ **RAG vs Traditional 선택 가능** ⭐ NEW!
-  - Traditional: Stack Trace 있을 때 (0.03초)
-  - RAG: Stack Trace 없을 때 (의미 검색)
-- ✅ 실시간 진행 상황 시각화 (Progress Bar)
-- ✅ 워크플로우 다이어그램 (3단계 흐름)
-- ✅ 단계별 Input/Output 표시
-- ✅ AI 모델 선택 UI (Ollama/OpenAI/Mock)
-- ✅ 리포트 미리보기 (Markdown 렌더링)
-- ✅ 발표/데모에 최적화된 UI
+### 2. Streamlit 대시보드 (추천)
 
-📖 **자세한 사용법**: [docs/STREAMLIT_가이드.md](docs/STREAMLIT_가이드.md)
+```powershell
+# 실행 전 기존 프로세스 정리
+Get-Process python* 2>$null | Stop-Process -Force 2>$null
 
----
+cd "한화AX\hanwha-ax-ai-agent"
+python -m streamlit run app.py --server.port 8501 --server.fileWatcherType none
+# → 브라우저에서 http://localhost:8501 접속
+```
 
-### 🧠 방법 2: RAG 기반 의미 검색 (현업 실전용!) ⭐ NEW!
+### 3. CLI 실행 (배치 처리)
 
-```bash
-# 1. RAG 패키지 설치 (최초 1회)
-pip install langchain langchain-community chromadb sentence-transformers
-
-# 2. RAG 기반 분석 실행
+```powershell
+# 기본 실행 (Groq + 예시 프로젝트)
 python run_all_rag.py
-# → 첫 실행: 코드베이스 인덱싱 (~2분)
-# → 이후 실행: 빠른 검색 (~5초)
 
-# 3. 실제 프로젝트에 적용
-python run_all_rag.py --project "C:\workspace\hanwha-backend"
+# 실제 Java 프로젝트 지정
+python run_all_rag.py --project "C:\workspace\backend" --email "C:\mail\inbox"
 
-# 4. 벡터 DB 재생성 (코드 변경 시)
+# Mock 모드 (API 키 없이 데모)
+python run_all_rag.py --llm mock
+
+# 벡터 DB 재생성 (소스코드 변경 시)
 python run_all_rag.py --reindex
 
-# 5. 검색 파라미터 조정
-python run_all_rag.py --chunk-size 1000 --top-k 10
+# 도움말
+python run_all_rag.py --help
 ```
-
-**🎯 RAG가 필요한 경우:**
-- ❌ Stack Trace 없는 에러: "주문 화면에서 오류 발생"
-- ❌ 일반적인 에러 메시지: "데이터베이스 연결 실패"
-- ❌ 사용자 신고: "결제 버튼 클릭 시 에러"
-- ✅ RAG가 의미를 분석해서 관련 코드 자동 검색!
-
-**📊 RAG vs 기본 비교:**
-| 항목 | 기본 방식 | RAG 방식 |
-|------|----------|---------|
-| **필수 정보** | 클래스명 + 라인 번호 | 에러 키워드만 |
-| **속도** | 0.03초 | 5초 |
-| **정확도** | 100% (위치 정확) | 70% (유사도 기반) |
-| **Stack Trace 없을 때** | ❌ 불가능 | ✅ 가능 |
-
-📖 **RAG 자세한 설명**: [docs/RAG_가이드.md](docs/RAG_가이드.md)
 
 ---
 
-### ⚡ 방법 3: 터미널 통합 실행 - 한 줄로 끝!
-
-```bash
-# 전체 3단계 한번에 실행 (Mock 모드)
-python run_all.py
-
-# 실제 Java 프로젝트 분석
-python run_all.py --project "C:\workspace\hanwha-ax-backend"
-
-# Ollama로 실제 AI 분석
-python run_all.py --llm ollama --model qwen2.5:7b
-
-# OpenAI로 분석
-python run_all.py --llm openai --model gpt-4 --api-key YOUR_KEY
-
-# 도움말 보기
-python run_all.py --help
-```
-
-### 📋 방법 3: 단계별 실행 (커스터마이즈)
-
-```bash
-# 1단계: 이메일 파싱
-python src/step1_email_parser.py
-
-# 2단계: 소스코드 추출
-python src/step2_code_extractor.py
-
-# 3단계: AI 분석 (Mock 모드)
-python src/step3_analysis_report.py
-
-# 결과 확인
-explorer reports  # Windows
-```
-
-## 프로젝트 구조
+## 📁 프로젝트 구조
 
 ```
-ai-agent/
-├── app.py                          # 🎨 Streamlit 웹 대시보드 (발표용 UI)
-├── run_all.py                      # ⚡ 통합 실행 스크립트 (전체 3단계 한번에!)
-├── run_all_rag.py                  # 🧠 RAG 통합 실행 스크립트 ⭐ NEW!
-├── requirements.txt                # Python 의존성 패키지
-├── email/                          # 에러 메일/로그 파일 저장 폴더
-│   ├── sample_error.txt           # 샘플 에러 메일
-│   └── database_error.log         # 샘플 데이터베이스 에러 로그
-├── example_project/               # 예시 Java 프로젝트
-│   └── src/
-│       └── com/hanwha/ax/
-│           ├── controller/
-│           │   └── OrderController.java
-│           ├── service/
-│           │   └── CustomerService.java
-│           └── model/
-│               ├── Customer.java
-│               └── Order.java
-├── src/                           # Python 소스코드
-│   ├── step1_email_parser.py     # [1단계] 메일 파싱 및 에러 추출 ✅
-│   ├── step2_code_extractor.py   # [2단계] 소스코드 실시간 접근 ✅
-│   ├── step2_rag_extractor.py    # [2단계-RAG] 의미 기반 코드 검색 ⭐ NEW!
-│   ├── step3_analysis_report.py  # [3단계] 원인 분석 및 리포트 생성 ✅
-│   └── step3_rag_analysis.py     # [3단계-RAG] RAG 결과 AI 분석 ⭐ NEW!
-├── examples/                      # 사용 예시 스크립트
-│   ├── test_step1_examples.py    # 1단계 다양한 활용 예시
-│   └── test_step2_examples.py    # 2단계 다양한 활용 예시
-├── output/                        # 출력 결과 저장 폴더
-│   ├── step1_parsed_errors.json  # 1단계 파싱 결과
-│   ├── step2_code_contexts.json  # 2단계 코드 컨텍스트
-│   └── step2_rag_contexts.json   # 2단계-RAG 검색 결과 ⭐ NEW!
-├── vector_db/                     # RAG 벡터 데이터베이스 ⭐ NEW!
-│   ├── chroma.sqlite3            # Chroma DB 메타데이터
-│   └── ...                       # 임베딩 데이터
-├── reports/                       # AI 분석 리포트
-│   ├── 오류_분석_리포트_CustomerService.md
-│   ├── 오류_분석_리포트_OrderController.md
-│   └── RAG_분석_리포트_*.md      # RAG 기반 리포트 ⭐ NEW!
-├── docs/                          # 문서
-│   ├── STEP1_완료.md             # 1단계 상세 문서
-│   ├── STEP2_완료.md             # 2단계 상세 문서
-│   ├── STEP3_완료.md             # 3단계 상세 문서
-│   ├── LLM_설정_가이드.md        # Ollama/OpenAI 설정
-│   ├── STREAMLIT_가이드.md       # 웹 대시보드 사용 가이드
-│   └── RAG_가이드.md             # RAG 사용 가이드 ⭐ NEW!
-└── README.md                      # 프로젝트 설명
+hanwha-ax-ai-agent/
+├── .env                          # Groq API 키 (GROQ_API_KEY=...)
+├── app.py                        # Streamlit 웹 대시보드
+├── run_all_rag.py                # CLI 전체 파이프라인 실행
+├── requirements.txt              # Python 의존성
+│
+├── email/                        # 분석할 이메일/로그 파일 저장소
+│   ├── sample_error.txt
+│   └── database_error.log
+│
+├── src/                          # 핵심 파이프라인 모듈
+│   ├── step1_email_parser.py     # [1단계] Groq로 이메일 파싱 → JSON
+│   ├── step2_rag_extractor.py    # [2단계] 벡터 DB 의미 유사도 검색
+│   └── step3_rag_analysis.py     # [3단계] Groq로 통합 분석 리포트 생성
+│
+├── example_project/              # 샘플 Java 프로젝트 (RAG 인덱스 대상)
+│   └── policy-search-demo/
+│
+├── output/                       # 파이프라인 중간 결과 (자동 생성)
+│   ├── step1_parsed_errors.json
+│   └── step2_rag_contexts.json
+│
+├── vector_db/                    # ChromaDB 벡터 인덱스 (자동 생성)
+│
+├── reports/                      # 최종 분석 리포트 (Markdown)
+│   └── {YYYYMMDD_HHMMSS}_분석리포트_{이메일명}.md
+│
+└── docs/                         # 추가 문서
 ```
 
-## 🛠️ [1단계] 메일 파싱 및 에러 키워드 추출
+---
 
-### 기능
-- 이메일 폴더에서 `.txt`, `.log`, `.eml`, `.msg` 파일 자동 탐색
-- Java Stack Trace에서 클래스명, 메서드명, 라인 번호 추출
-- Exception 타입 및 메시지 추출
-- JSON 형식으로 결과 저장
+## 🧩 단계별 상세
 
-### 실행 방법
+### 1단계 — AI 메일 분석 (`step1_email_parser.py`)
 
-```bash
-cd src
-python step1_email_parser.py
-```
+| 항목 | 내용 |
+|------|------|
+| **LLM** | Groq compound-beta (기본), Ollama / OpenAI 선택 가능 |
+| **입력** | `.eml` `.log` `.txt` `.msg` `.csv` `.xml` `.err` |
+| **출력** | `output/step1_parsed_errors.json` |
+| **기능** | EML MIME 파싱, 첨부파일 텍스트 추출, 오류 요약·심각도·RAG 키워드 생성 |
+| **폴백** | LLM 실패 시 정규식으로 Stack Trace 자동 파싱 |
 
-### 출력 예시
-
+출력 예시:
 ```json
 {
   "sample_error.txt": {
     "has_error": true,
-    "exceptions": [
-      {
-        "exception": "java.lang.NullPointerException",
-        "message": "Cannot invoke \"String.length()\" because \"customerName\" is null"
-      }
-    ],
-    "stack_traces": [
-      {
-        "full_class": "com.hanwha.ax.service.CustomerService",
-        "package": "com.hanwha.ax.service",
-        "class_name": "CustomerService",
-        "method": "validateCustomerData",
-        "file": "CustomerService.java",
-        "line": 145
-      }
+    "error_summary": "CustomerService.validateCustomerData()에서 NPE 발생...",
+    "error_type": "NullPointerException",
+    "severity": "HIGH",
+    "root_cause": "customerName null 체크 누락",
+    "search_queries": [
+      "CustomerService validateCustomerData",
+      "null check String validation",
+      "customer data processing error"
     ]
   }
 }
 ```
 
-### 사용 예시 (코드에서 직접 사용)
+---
 
-```python
-from step1_email_parser import EmailParser
+### 2단계 — RAG 코드 검색 (`step2_rag_extractor.py`)
 
-# Parser 생성
-parser = EmailParser(email_folder="email")
+| 항목 | 내용 |
+|------|------|
+| **벡터 DB** | ChromaDB (로컬 `vector_db/` 폴더 자동 생성) |
+| **임베딩** | `all-MiniLM-L6-v2` (HuggingFace) |
+| **입력** | `step1_parsed_errors.json` + Java 프로젝트 경로 |
+| **출력** | `output/step2_rag_contexts.json` |
+| **기능** | Java 코드를 청크로 분할 → 벡터 임베딩 → 검색 쿼리로 유사 코드 탐색 |
 
-# 단일 이메일 파싱
-email_text = parser.read_email_file("email/sample_error.txt")
-result = parser.parse_email(email_text)
+> 소스코드가 변경되지 않으면 재실행 불필요.
+> UI에서 **"2단계 건너뛰기"** 체크 또는 CLI에서 기존 `step2_rag_contexts.json` 재사용.
 
-# 폴더 내 모든 이메일 파싱
-all_results = parser.parse_all_emails()
+---
 
-# JSON 파일로 저장
-parser.save_parsed_results(all_results, "output/parsed_errors.json")
-```
+### 3단계 — AI 분석 리포트 (`step3_rag_analysis.py`)
 
-### 다양한 활용 예시
+| 항목 | 내용 |
+|------|------|
+| **LLM** | Groq compound-beta (기본), Ollama / OpenAI 선택 가능 |
+| **입력** | `step2_rag_contexts.json` (없으면 `step1_parsed_errors.json` 자동 폴백) |
+| **출력** | `reports/{YYYYMMDD_HHMMSS}_분석리포트_{이메일명}.md` |
+| **비율** | **이메일 1개 = 리포트 파일 1개** (쿼리 수와 무관) |
 
-더 많은 사용 예시를 보려면 아래 명령어를 실행하세요:
-
-```bash
-python examples/test_step1_examples.py
-```
-
-이 스크립트는 다음과 같은 예시를 포함합니다:
-- 예시 1: 단일 이메일 파일 파싱
-- 예시 2: 폴더 내 모든 이메일 파싱
-- 예시 3: 에러 발생 위치만 추출
-- 예시 4: 특정 패키지의 에러만 필터링
-- 예시 5: 에러 요약 리포트 생성
-
-## 🛠️ [2단계] 소스코드 실시간 접근 및 컨텍스트 추출
-
-### 기능
-- 1단계에서 추출한 JSON 데이터(클래스명, 라인 번호) 자동 읽기
-- Java 프로젝트 디렉토리에서 `.java` 파일 실시간 재귀 탐색
-- 클래스명 + 패키지명으로 정확한 파일 매칭
-- **파일을 직접 열어 최신 수정 사항 반영**
-- 에러 라인 기준 **앞뒤 30줄** 추출 (커스터마이징 가능)
-- 에러 라인 하이라이팅 (`is_error_line: true`)
-- JSON 형식으로 결과 저장
-
-### 실행 방법
-
-```bash
-cd src
-python step2_code_extractor.py
-```
-
-### 출력 예시
-
-```json
-{
-  "sample_error.txt": {
-    "email_file": "sample_error.txt",
-    "exceptions": [
-      {
-        "exception": "java.lang.NullPointerException",
-        "message": "Cannot invoke \"String.length()\" because \"customerName\" is null"
-      }
-    ],
-    "contexts": [
-      {
-        "success": true,
-        "file_path": "example_project/src/.../CustomerService.java",
-        "total_lines": 60,
-        "error_line": 145,
-        "context_start": 115,
-        "context_end": 60,
-        "context_lines": [
-          {
-            "line_number": 145,
-            "content": "    if (customerName.length() < 2) {",
-            "is_error_line": true
-          }
-        ],
-        "raw_code": "전체 코드 텍스트...",
-        "class_name": "CustomerService",
-        "method": "validateCustomerData"
-      }
-    ]
-  }
-}
-```
-
-### 사용 예시 (코드에서 직접 사용)
-
-```python
-from step2_code_extractor import CodeExtractor
-
-# CodeExtractor 생성
-extractor = CodeExtractor(
-    project_root="example_project",  # Java 프로젝트 경로
-    context_lines=30  # 앞뒤 30줄
-)
-
-# 1단계 결과에서 자동 추출
-contexts = extractor.process_parsed_errors("output/step1_parsed_errors.json")
-
-# JSON 파일로 저장
-extractor.save_contexts(contexts, "output/step2_code_contexts.json")
-```
-
-### 다양한 활용 예시
-
-더 많은 사용 예시를 보려면 아래 명령어를 실행하세요:
-
-```bash
-python examples/test_step2_examples.py
-```
-
-이 스크립트는 다음과 같은 예시를 포함합니다:
-- 예시 1: 단일 에러 위치의 소스코드 컨텍스트 추출
-- 예시 2: 1단계 JSON 파일에서 자동으로 추출
-- 예시 3: 성공한 컨텍스트만 필터링
-- 예시 4: 에러 라인의 실제 코드 표시
-- 예시 5: LLM 프롬프트용 코드 스니펫 생성
-- 예시 6: 커스텀 컨텍스트 크기로 추출
-
-## 🛠️ [3단계] 원인 분석 및 수정 제안 리포트 생성
-
-### 기능
-- 1, 2단계 데이터 통합 (에러 로그 + 소스코드)
-- **OpenAI API / Ollama API 호환** LLM 프롬프트 빌드
-- **Mock 모드** - Ollama 없이도 테스트 가능
-- Ollama (Qwen2.5-7B, CodeLlama 등) 지원
-- OpenAI (GPT-4, GPT-3.5) 지원
-- 클래스별 **마크다운 리포트** 자동 생성
-- **엄격한 시스템 프롬프트** - AI가 소스코드 파일 직접 수정 금지
-- 에러 원인, 수정 방법, 코드 예시, 권장 사항 포함
-
-### 실행 방법
-
-```bash
-# Mock 모드 (Ollama 없이 데모 분석)
-python src/step3_analysis_report.py
-
-# Ollama 사용 (실제 AI 분석)
-# 1. Ollama 설치: https://ollama.com/download
-# 2. 모델 다운로드: ollama pull qwen2.5:7b
-# 3. 서버 실행: ollama serve
-# 4. step3_analysis_report.py에서 use_mock=False로 변경
-```
-
-### 생성되는 리포트 예시
-
-**파일**: `reports/오류_분석_리포트_CustomerService.md`
-
+생성 리포트 구조:
 ```markdown
-# 🐛 에러 분석 리포트: CustomerService
+# 🤖 AI 에러 분석 리포트
 
-## 📋 발생한 Exception
-- **java.lang.NullPointerException**
-  - Cannot invoke "String.length()" because "customerName" is null
+| 원본 파일 | sample_error.txt |
+| 생성 시간 | 2026-05-24 03:11 |
+| 분석 수   | 3개              |
+| 심각도    | HIGH             |
 
-## 📍 에러 발생 위치
-- **클래스**: CustomerService
-- **메서드**: validateCustomerData()
-- **라인**: 145
+> 오류 요약: ...
 
-## 🔍 AI 분석 결과
+---
 
-### 1. 에러 원인 분석
-Null 체크 없이 .length() 메서드 호출...
+## 📋 목차
+1. 분석 1/3
+2. 분석 2/3
+3. 분석 3/3
 
-### 2. 문제가 되는 코드
-[문제 코드 지적]
+---
 
-### 3. 수정 방법
-[안전한 수정 방법]
+## 🔍 분석 1/3: `CustomerService validateCustomerData`
+### 📧 오류 정보
+### 🔎 관련 소스코드 (RAG 검색 결과)
+### 🤖 AI 분석
 
-### 4. 수정된 코드 예시
-```java
-// Null 체크 추가
-if (customerName == null || customerName.isEmpty()) {
-    throw new IllegalArgumentException("Customer name is required");
-}
+---
+
+## 🔍 분석 2/3: ...
+## 🔍 분석 3/3: ...
+
+---
+
+## ⚠️ 안전성 공지
+- AI는 소스코드를 직접 수정하지 않습니다
+- 이 리포트는 참고 자료입니다. 개발자가 검토 후 수동 적용하세요.
 ```
 
-### 5. 추가 권장 사항
-- Bean Validation 사용
-- 유닛 테스트 추가
-- 로깅 강화
+---
 
-## ⚠️ 중요 공지
-AI가 기존 소스코드 파일을 직접 수정하지 않았습니다.
-개발자가 검토 후 수동으로 적용하세요.
-```
+## 🖥️ Streamlit 대시보드
 
-### 사용 예시 (코드에서 직접 사용)
+| 기능 | 설명 |
+|------|------|
+| **모델 선택** | 1단계·3단계 각각 Groq / Ollama / OpenAI / Mock 선택 |
+| **파일 입력** | 폴더 전체 또는 개별 파일 다중 선택 (OS 탐색기 연동) |
+| **RAG 설정** | 청크 크기, Top-K, 벡터 DB 재생성, 2단계 건너뛰기 |
+| **실행 현황** | Progress Bar + 단계별 성공/실패 실시간 표시 |
+| **결과 탭** | 1·2·3단계 결과 각각 탭으로 확인 |
+| **리포트 뷰어** | 생성된 모든 리포트를 최신 순으로 선택·렌더링 (항상 화면 하단 표시) |
 
-```python
-from step3_analysis_report import AnalysisReportGenerator
+---
 
-# Mock 모드 (데모용)
-generator = AnalysisReportGenerator(use_mock=True)
+## 🛠️ 환경 설정
 
-# Ollama 사용
-generator = AnalysisReportGenerator(
-    use_mock=False,
-    llm_type="ollama",
-    model_name="qwen2.5:7b"
-)
+### 지원 LLM
 
-# OpenAI 사용
-generator = AnalysisReportGenerator(
-    llm_type="openai",
-    model_name="gpt-4",
-    api_key="your-api-key"
-)
+| LLM | 설정 | 비고 |
+|-----|------|------|
+| **Groq** (기본) | `.env`에 `GROQ_API_KEY=...` | 빠름, 무료 플랜 있음 |
+| **Ollama** | `ollama serve` 실행 후 모델 선택 | 로컬 실행, 인터넷 불필요 |
+| **OpenAI** | UI에서 API 키 직접 입력 | GPT-4o 등 |
+| **Mock** | 설정 불필요 | 데모·테스트용 더미 응답 |
 
-# 리포트 생성
-generator.process_all_errors(
-    "output/step2_code_contexts.json",
-    "reports"
-)
-```
+### Groq 지원 모델
 
-### 안전성 보장
+| 모델 | 특징 |
+|------|------|
+| `compound-beta` | **기본값**, 웹 검색 통합 |
+| `compound-beta-mini` | 경량 버전 |
+| `llama-3.3-70b-versatile` | 고성능 |
+| `llama-3.1-8b-instant` | 빠른 응답 |
 
-**시스템 프롬프트에 명시**:
-```
-⚠️ 절대 금지 사항:
-- 기존 Java 소스코드 파일을 직접 수정하거나 덮어쓰는 행위는 절대 금지
-- 파일 시스템에 직접 접근 금지
-- 오직 분석 결과를 텍스트로 제공만 허용
-```
+---
 
-**코드 레벨 보호**:
-- AI는 마크다운 텍스트만 반환
-- 리포트 디렉토리에만 쓰기 권한
-- 소스코드 디렉토리 접근 불가
+## 🔒 보안
 
-## 📋 완료 상황
+- API 키는 반드시 `.env` 파일에 저장 — 소스코드에 직접 기재하지 마세요
+- `.env`는 `.gitignore`에 추가 권장
+- AI는 소스코드 파일을 **절대 직접 수정하지 않습니다** — 리포트는 참고 자료
+- 시스템 프롬프트에 코드 수정 금지 지침 명시되어 있습니다
 
-- **[1단계]** ✅ 메일 파싱 및 에러 키워드 추출 - **완료**
-- **[2단계]** ✅ 소스코드 실시간 접근 및 컨텍스트 추출 - **완료**
-- **[3단계]** ✅ 원인 분석 및 수정 제안 리포트 생성 - **완료**
+---
 
-## 📚 상세 문서
+## 📝 라이선스
 
-- [docs/STEP1_완료.md](docs/STEP1_완료.md) - 1단계 상세 가이드
-- [docs/STEP2_완료.md](docs/STEP2_완료.md) - 2단계 상세 가이드
-- [docs/STEP3_완료.md](docs/STEP3_완료.md) - 3단계 상세 가이드
-- [docs/LLM_설정_가이드.md](docs/LLM_설정_가이드.md) - Ollama/OpenAI 설정
-
-## 🎯 주요 특징
-
-### 1. 완전 자동화된 워크플로우
-```
-이메일 수신 → 에러 파싱 → 소스코드 탐색 → AI 분석 → 리포트 생성
-```
-
-### 2. 실시간 소스코드 접근
-- 최신 수정 사항 즉시 반영
-- 캐싱이 아닌 직접 파일 읽기
-- 정확한 라인 번호 추출
-
-### 3. 다양한 LLM 지원
-- **Mock 모드**: 테스트용 (무료)
-- **Ollama**: 로컬 실행 (무료, 데이터 보안)
-- **OpenAI**: 클라우드 (유료, 고품질)
-
-### 4. 절대적인 안전성
-- ⚠️ **AI가 소스코드 파일을 절대 수정하지 않음**
-- 오직 분석 리포트만 생성
-- 개발자가 검토 후 수동 적용
-
-### 5. 실용적인 출력
-- 마크다운 형식 리포트
-- 원인 분석 + 수정 방법 + 코드 예시
-- 팀 공유 및 문서화 용이
-
-## 🔄 전체 워크플로우
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ [1단계] 메일 파싱                                        │
-│  • 이메일/로그 파일 읽기                                  │
-│  • Stack Trace 정규표현식 파싱                           │
-│  • 클래스명, 메서드명, 라인 번호 추출                      │
-│  • JSON으로 저장                                         │
-└─────────────────┬───────────────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────────────────────────┐
-│ [2단계] 소스코드 추출                                     │
-│  • Java 프로젝트 디렉토리 탐색                            │
-│  • 클래스명으로 파일 찾기                                 │
-│  • 에러 라인 기준 ±30줄 추출                              │
-│  • JSON으로 저장                                         │
-└─────────────────┬───────────────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────────────────────────┐
-│ [3단계] AI 분석                                          │
-│  • 에러 로그 + 소스코드 통합                              │
-│  • LLM 프롬프트 빌드                                     │
-│  • Ollama/OpenAI API 호출                                │
-│  • 원인 분석 및 수정 제안                                 │
-│  • 마크다운 리포트 생성                                   │
-└─────────────────┬───────────────────────────────────────┘
-                  ↓
-┌─────────────────────────────────────────────────────────┐
-│ [개발자 검토 및 적용]                                     │
-│  • 리포트 검토                                           │
-│  • 팀 리뷰                                               │
-│  • 수동으로 코드 수정                                     │
-│  • 테스트 및 검증                                         │
-│  • 배포                                                  │
-└─────────────────────────────────────────────────────────┘
-```
-
-## 🛡️ 보안 및 안전성
-
-### AI 소스코드 수정 금지 (3중 보호)
-
-**1. 시스템 프롬프트 레벨**
-```
-⚠️ 절대 금지 사항:
-- 기존 Java 소스코드 파일을 직접 수정하거나 덮어쓰는 행위는 절대 금지
-```
-
-**2. 코드 레벨**
-```python
-# ❌ 이런 코드는 존재하지 않음
-# with open("CustomerService.java", "w") as f:
-#     f.write(fixed_code)
-
-# ✅ 오직 리포트만
-with open("reports/오류_분석_리포트.md", "w") as f:
-    f.write(report)
-```
-
-**3. 프로세스 레벨**
-- AI 출력: 마크다운 텍스트
-- 개발자 검토: 필수
-- 수동 적용: 개발자가 직접
-
-## 💻 요구사항
-
-- Python 3.7+
-- 외부 라이브러리:
-  - `requests` (HTTP 요청용)
-- 선택 사항:
-  - Ollama (로컬 LLM)
-  - OpenAI API 키 (클라우드 LLM)
-
-## 📖 사용 가이드
-
-### 새 에러 분석하기
-
-1. **이메일/로그 파일 추가**
-```bash
-# email/ 폴더에 .txt, .log 파일 추가
-cp new_error.log email/
-```
-
-2. **전체 프로세스 실행**
-```bash
-python src/step1_email_parser.py
-python src/step2_code_extractor.py
-python src/step3_analysis_report.py
-```
-
-3. **리포트 확인**
-```bash
-explorer reports
-# 또는
-code reports/오류_분석_리포트_*.md
-```
-
-### 프로젝트 경로 변경
-
-```python
-# step2_code_extractor.py
-extractor = CodeExtractor(
-    project_root="your-java-project-path",  # 변경
-    context_lines=30
-)
-```
-
-### 다른 모델 사용
-
-```python
-# step3_analysis_report.py
-generator = AnalysisReportGenerator(
-    llm_type="ollama",
-    model_name="codellama"  # 또는 "llama3", "mistral"
-)
-```
-
-## 요구사항
-
-- Python 3.7+
-- 외부 라이브러리 없음 (표준 라이브러리만 사용)
+한화AX 내부용 / Internal Use Only

@@ -1,63 +1,73 @@
 # 🎉 프로젝트 완성 요약
 
 ## 📅 완료 일시
-2026년 5월 22일
+2026년 5월 24일
 
 ---
 
 ## ✅ 완성된 기능
 
-### 1️⃣ 기본 에러 분석 시스템 (Traditional)
-- ✅ **1단계**: 이메일/로그 파일에서 Java Stack Trace 파싱
-- ✅ **2단계**: 정확한 라인 번호로 소스코드 추출 (±30줄)
-- ✅ **3단계**: LLM을 활용한 에러 원인 분석 및 수정 제안
-- ⚡ **성능**: 0.03초 초고속 처리
-- 🎯 **적용 대상**: Stack Trace가 명확한 에러
+### 1️⃣ AI 메일 분석 (1단계 — step1_email_parser.py)
+- ✅ EML / LOG / TXT 등 다양한 형식 자동 파싱 (EML MIME, 첨부파일 포함)
+- ✅ **LLM**: Groq compound-beta (기본) / Ollama / OpenAI / Mock 선택 가능
+- ✅ 오류 요약, 심각도(CRITICAL/HIGH/MEDIUM/LOW), RAG 검색 키워드 생성
+- ✅ LLM 실패 시 정규식 Stack Trace 파싱 자동 폴백
+- ✅ 429 Rate Limit → 5·15·30초 자동 재시도
 
-### 2️⃣ RAG 기반 의미 검색 시스템 ⭐ NEW!
-- ✅ **벡터 DB 인덱싱**: 전체 코드베이스를 청크 단위로 임베딩
-- ✅ **의미 기반 검색**: 에러 키워드로 관련 코드 자동 탐색
-- ✅ **유사도 분석**: 가장 관련 높은 코드 Top-K 추출
-- 🧠 **AI 임베딩**: sentence-transformers/all-MiniLM-L6-v2
-- 🎯 **적용 대상**: Stack Trace 없는 애매한 에러 ("화면에서 오류 발생" 같은 현업 실제 케이스)
+### 2️⃣ RAG 코드 검색 (2단계 — step2_rag_extractor.py)
+- ✅ **벡터 DB**: ChromaDB + `all-MiniLM-L6-v2` HuggingFace 임베딩
+- ✅ Java 소스코드를 청크 단위로 분할·인덱싱
+- ✅ 오류 키워드로 유사 코드 자동 탐색 (유사도 순 Top-K 반환)
+- ✅ Stack Trace 없는 애매한 에러도 처리 가능
+- ✅ 소스코드 미변경 시 인덱스 재사용 (2단계 건너뛰기 지원)
 
-### 3️⃣ 웹 대시보드 (Streamlit)
-- ✅ **Traditional vs RAG 선택 UI** ⭐ NEW!
-- ✅ **실시간 진행 상황**: Progress Bar로 각 단계 시각화
-- ✅ **워크플로우 다이어그램**: 3단계 흐름 Mermaid 차트 (모드별 표시)
-- ✅ **인터랙티브 설정**: 사이드바에서 LLM, 모델, 분석 방법 선택
-- ✅ **RAG 전용 설정**: 청크 크기, Top-K, 벡터 DB 재생성
-- ✅ **리포트 미리보기**: Markdown 렌더링
-- 🎨 **용도**: 발표, 데모, 시연 (RAG vs Traditional 비교 데모 가능)
+### 3️⃣ AI 분석 리포트 (3단계 — step3_rag_analysis.py)
+- ✅ **LLM**: Groq compound-beta (기본) / Ollama / OpenAI / Mock 선택 가능
+- ✅ **이메일 1개 = 리포트 파일 1개** (여러 쿼리 분석을 목차 형태로 통합)
+- ✅ 리포트 파일명에 타임스탬프 포함 → 최신 순 정렬 가능
+- ✅ 413 Payload Too Large → 프롬프트 절반 축소 후 자동 재시도
+- ✅ 일부 쿼리 실패 시에도 오류 메시지 포함, 리포트 생성 계속
+- ✅ step2 결과 없으면 step1만으로 자동 분석 (폴백)
 
-### 4️⃣ 통합 실행 시스템
-- ✅ **run_all.py**: 기본 방식 전체 3단계 한 번에 실행
-- ✅ **run_all_rag.py**: RAG 방식 전체 3단계 한 번에 실행
-- ✅ **CLI 인터페이스**: argparse로 다양한 옵션 지원
-- ✅ **컬러 출력**: 진행 상황 가독성 향상
+### 4️⃣ Streamlit 웹 대시보드 (app.py)
+- ✅ Groq / Ollama / OpenAI / Mock 모델 선택 UI
+- ✅ 폴더 전체 또는 개별 파일 선택 (OS 탐색기 연동)
+- ✅ Progress Bar + 단계별 실시간 진행 상황
+- ✅ 1·2·3단계 결과 탭 분리 표시
+- ✅ **리포트 뷰어**: 최신 순 정렬, 선택한 리포트 Markdown 렌더링 (항상 표시)
+- ✅ 2단계 건너뛰기 옵션 (벡터 DB 재사용)
+
+### 5️⃣ CLI 배치 실행 (run_all_rag.py)
+- ✅ 전체 3단계 파이프라인 한 줄 실행
+- ✅ `--project`, `--email`, `--llm`, `--model`, `--reindex` 옵션
+- ✅ Groq 기본값, Mock 모드 지원
 
 ---
 
-## 📊 테스트 결과
+## 🏗️ 최종 아키텍처
 
-### 기본 방식 (Traditional)
 ```
-✅ 2개 이메일 파일 처리
-✅ 17개 Stack Trace 발견
-✅ 4개 코드 컨텍스트 추출 성공
-✅ 2개 AI 분석 리포트 생성
-⏱️ 소요 시간: 0.03초
+이메일/로그 파일
+   │
+   ▼  [1단계] Groq compound-beta
+step1_parsed_errors.json
+   │
+   ▼  [2단계] ChromaDB + MiniLM
+step2_rag_contexts.json
+   │
+   ▼  [3단계] Groq compound-beta
+reports/{YYYYMMDD_HHMMSS}_분석리포트_{이메일명}.md
 ```
 
-### RAG 방식 (Semantic Search)
+---
+
+## 📊 실행 결과 (실제 테스트)
+
 ```
-✅ 4개 Java 파일 인덱싱
-✅ 16개 코드 청크 생성
-✅ 벡터 DB 구축 완료
-✅ 2개 이메일 파일 처리
-✅ 20개 의미 기반 검색 완료
-✅ 20개 AI 분석 리포트 생성
-⏱️ 소요 시간: 5.77초 (첫 실행), 이후 ~2초
+✅ 이메일 1개 → 통합 리포트 1개 (3개 쿼리 분석 포함)
+✅ 429 / 413 에러 자동 처리 확인
+✅ Streamlit 리포트 뷰어 정상 렌더링
+```
 ```
 
 ---

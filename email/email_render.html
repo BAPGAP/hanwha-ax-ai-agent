@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>장애 메일 원문</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; background: #f0f2f5; padding: 24px; }
+  .email-client {
+    max-width: 860px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  .email-toolbar {
+    background: #1a73e8;
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .email-toolbar span { font-size: 20px; }
+  .email-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fafafa;
+  }
+  .subject-line {
+    font-size: 22px;
+    font-weight: 700;
+    color: #202124;
+    margin-bottom: 14px;
+  }
+  .meta-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .meta-label {
+    color: #5f6368;
+    min-width: 48px;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .meta-value { color: #202124; }
+  .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1a73e8;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 10px;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .sender-name { font-weight: 600; color: #202124; }
+  .sender-email { color: #5f6368; margin-left: 6px; font-size: 13px; }
+  .email-body {
+    padding: 24px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #202124;
+  }
+  .email-body p { margin-bottom: 12px; }
+  .attachment-section {
+    border-top: 1px solid #e0e0e0;
+    padding: 16px 24px;
+    background: #f8f9fa;
+  }
+  .attachment-title {
+    font-size: 13px;
+    color: #5f6368;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .attachment-img {
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    max-width: 100%;
+    display: block;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  .badge {
+    display: inline-block;
+    background: #fce8e6;
+    color: #c5221f;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .separator { border: none; border-top: 40px solid transparent; }
+</style>
+</head>
+<body>
+  <div class="email-client">
+    <div class="email-toolbar">
+      <span>📧</span> 수신 메일 — 장애 신고
+    </div>
+    <div class="email-header">
+      <div class="subject-line">
+        증권번호 조회 화면 오류
+        <span class="badge">HIGH</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">발신</span>
+        <div>
+          <span class="avatar">신</span>
+          <span class="sender-name">신상윤</span>
+          <span class="sender-email">&lt;kas123123@naver.com&gt;</span>
+          &nbsp;·&nbsp; <span style="color:#5f6368;font-size:13px;">생보ITO1팀</span>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">수신</span>
+        <span class="meta-value">개발팀</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">날짜</span>
+        <span class="meta-value">2026년 5월 23일 (토) 오후 6:09</span>
+      </div>
+    </div>
+    <div class="email-body">
+      <p>안녕하세요 생보ITO1팀 신상윤입니다.</p>
+      <p>
+        증권 조회 화면에서 전체조회를 누르면<br>
+        조회결과에 <strong>10건</strong>만 확인이 되는데 총 <strong>18건</strong>이라고 뜨네요.
+      </p>
+      <p>따로 아래에 페이지 선택하는 부분도 없고<br>확인 부탁드립니다.</p>
+      <p>오류화면 첨부드렸습니다.</p>
+      <p>감사합니다.</p>
+    </div>
+    <div class="attachment-section">
+      <div class="attachment-title">
+        📎 첨부파일 (1) — 오류 화면 캡처
+      </div>
+      <img class="attachment-img" src="attachment.png" alt="증권조회 오류 화면">
+    </div>
+  </div>
+</body>
+</html>

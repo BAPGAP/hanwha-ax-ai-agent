@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: policy-search-demo
+
+  # =====================================================================
+  # H2 In-Memory Database 설정 (데모용)
+  # =====================================================================
+  datasource:
+    url: jdbc:h2:mem:policydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # H2 웹 콘솔 (http://localhost:8080/h2-console 로 DB 직접 확인 가능)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # SQL 초기화 설정 (schema.sql → data.sql 순서로 실행)
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      encoding: UTF-8
+
+  # Thymeleaf 설정
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
+
+# =====================================================================
+# MyBatis 설정
+# =====================================================================
+mybatis:
+  # Mapper XML 파일 위치
+  mapper-locations: classpath:mapper/*.xml
+  # VO 패키지 별칭 (XML에서 전체 경로 대신 클래스명으로 사용 가능)
+  type-aliases-package: com.hanwha.ax.vo
+  configuration:
+    # 카멜케이스 자동 매핑 (snake_case DB 컬럼 → camelCase 필드)
+    map-underscore-to-camel-case: true
+    # SQL 로그 출력 (개발용)
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # null 값 처리
+    call-setters-on-nulls: true
+
+# =====================================================================
+# 서버 설정
+# =====================================================================
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+# =====================================================================
+# 로그 설정
+# =====================================================================
+logging:
+  level:
+    root: INFO
+    com.hanwha.ax: DEBUG
+    com.hanwha.ax.mapper: DEBUG   # MyBatis SQL 로그
+    org.mybatis: DEBUG

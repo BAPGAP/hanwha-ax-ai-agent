@@ -48,5 +48,8 @@ Desktop.ini
 # API Keys (중요!)
 .env
 config.ini
+
+# 문서 (시연자료, 제안서, 스크린샷 등)
+docs/
 secrets.json
 *_api_key.txt

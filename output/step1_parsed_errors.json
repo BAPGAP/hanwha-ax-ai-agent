@@ -1,166 +1,28 @@
 {
-  "database_error.log": {
+  "증권번호 조회 화면 오류.eml": {
+    "error_summary": "증권번호 조회 화면에서 전체 조회 시 조회 결과에 10건만 표시되고, 총 18건이라고 표시되는 오류가 발생했습니다. 이로 인해 사용자는 일부 데이터만 확인하게 되어 데이터의 완전성이 손상됩니다.",
+    "error_type": "Exception",
+    "error_message": "증권 조회 화면에서 전체 조회를 누를 때 조회 결과에 10건만 확인이 되고, 총 18건이라고 뜨는 오류",
+    "severity": "HIGH",
+    "affected_components": [],
+    "root_cause": "데이터 페이징 로직 또는 UI 표시 로직의 버그로 전체 건수를 올바르게 렌더링하지 못하고 일부만 표시되는 것으로 추정됩니다.",
+    "search_queries": [
+      "증권번호 조회 화면 페이징",
+      "조회 결과 건수 불일치",
+      "데이터 표시 오류"
+    ],
+    "has_stack_trace": false,
+    "has_attachment": true,
+    "file_name": "증권번호 조회 화면 오류.eml",
+    "llm_model": "compound-beta",
     "has_error": true,
+    "raw_text": "[메일 헤더]\n제목: 증권번호 조회 화면 오류\n발신: 신상윤 <kas123123@naver.com>\n날짜: Sat, 23 May 2026 18:09:25 +0900\n---\n[본문]\n\n안녕하세요 생보ITO1팀 신상윤입니다.\n증권 조회 회면에서 전체조회를 누르면 조회결과에 10건만 확인이 되는데 총 18건이라고 뜨네요.\n따로 아래에 페이지 선택하는 부분도 없고 확인 부탁드립니다.\n오류화면 첨부드렸습니다\n감사합니다.\n",
+    "stack_traces": [],
     "exceptions": [
       {
-        "exception": "org.springframework.dao.DataAccessException",
-        "message": "Could not execute statement"
-      },
-      {
-        "exception": "java.sql.SQLSyntaxErrorException",
-        "message": "Table 'ax_db.products' doesn't exist"
+        "exception": "Exception",
+        "message": "증권 조회 화면에서 전체 조회를 누를 때 조회 결과에 10건만 확인이 되고, 총 18건이라고 뜨는 오류"
       }
-    ],
-    "stack_traces": [
-      {
-        "full_class": "com.hanwha.ax.repository.ProductRepository",
-        "package": "com.hanwha.ax.repository",
-        "class_name": "ProductRepository",
-        "method": "findProductById",
-        "file": "ProductRepository.java",
-        "line": 234
-      },
-      {
-        "full_class": "com.hanwha.ax.service.ProductService",
-        "package": "com.hanwha.ax.service",
-        "class_name": "ProductService",
-        "method": "getProductDetails",
-        "file": "ProductService.java",
-        "line": 112
-      },
-      {
-        "full_class": "com.hanwha.ax.service.OrderService",
-        "package": "com.hanwha.ax.service",
-        "class_name": "OrderService",
-        "method": "validateOrderItems",
-        "file": "OrderService.java",
-        "line": 156
-      },
-      {
-        "full_class": "com.hanwha.ax.service.OrderService",
-        "package": "com.hanwha.ax.service",
-        "class_name": "OrderService",
-        "method": "createOrder",
-        "file": "OrderService.java",
-        "line": 78
-      },
-      {
-        "full_class": "com.hanwha.ax.controller.OrderController",
-        "package": "com.hanwha.ax.controller",
-        "class_name": "OrderController",
-        "method": "submitOrder",
-        "file": "OrderController.java",
-        "line": 45
-      },
-      {
-        "full_class": "com.mysql.cj.jdbc.exceptions.SQLError",
-        "package": "com.mysql.cj.jdbc.exceptions",
-        "class_name": "SQLError",
-        "method": "createSQLException",
-        "file": "SQLError.java",
-        "line": 120
-      },
-      {
-        "full_class": "com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping",
-        "package": "com.mysql.cj.jdbc.exceptions",
-        "class_name": "SQLExceptionsMapping",
-        "method": "translateException",
-        "file": "SQLExceptionsMapping.java",
-        "line": 122
-      },
-      {
-        "full_class": "com.hanwha.ax.config.DatabaseConfig",
-        "package": "com.hanwha.ax.config",
-        "class_name": "DatabaseConfig",
-        "method": "executeQuery",
-        "file": "DatabaseConfig.java",
-        "line": 89
-      }
-    ],
-    "raw_text": "2026-05-21 14:45:23 ERROR [http-nio-8080-exec-5] DatabaseException occurred\n\norg.springframework.dao.DataAccessException: Could not execute statement\n\tat com.hanwha.ax.repository.ProductRepository.findProductById(ProductRepository.java:234)\n\tat com.hanwha.ax.service.ProductService.getProductDetails(ProductService.java:112)\n\tat com.hanwha.ax.service.OrderService.validateOrderItems(OrderService.java:156)\n\tat com.hanwha.ax.service.OrderService.createOrder(OrderService.java:78)\n\tat com.hanwha.ax.con"
-  },
-  "sample_error.txt": {
-    "has_error": true,
-    "exceptions": [
-      {
-        "exception": "java.lang.NullPointerException",
-        "message": "Cannot invoke \"String.length()\" because \"customerName\" is null"
-      }
-    ],
-    "stack_traces": [
-      {
-        "full_class": "com.hanwha.ax.service.CustomerService",
-        "package": "com.hanwha.ax.service",
-        "class_name": "CustomerService",
-        "method": "validateCustomerData",
-        "file": "CustomerService.java",
-        "line": 145
-      },
-      {
-        "full_class": "com.hanwha.ax.service.CustomerService",
-        "package": "com.hanwha.ax.service",
-        "class_name": "CustomerService",
-        "method": "processCustomerOrder",
-        "file": "CustomerService.java",
-        "line": 89
-      },
-      {
-        "full_class": "com.hanwha.ax.controller.OrderController",
-        "package": "com.hanwha.ax.controller",
-        "class_name": "OrderController",
-        "method": "createOrder",
-        "file": "OrderController.java",
-        "line": 67
-      },
-      {
-        "full_class": "jdk.internal.reflect.NativeMethodAccessorImpl",
-        "package": "jdk.internal.reflect",
-        "class_name": "NativeMethodAccessorImpl",
-        "method": "invoke",
-        "file": "NativeMethodAccessorImpl.java",
-        "line": 62
-      },
-      {
-        "full_class": "jdk.internal.reflect.DelegatingMethodAccessorImpl",
-        "package": "jdk.internal.reflect",
-        "class_name": "DelegatingMethodAccessorImpl",
-        "method": "invoke",
-        "file": "DelegatingMethodAccessorImpl.java",
-        "line": 43
-      },
-      {
-        "full_class": "java.lang.reflect.Method",
-        "package": "java.lang.reflect",
-        "class_name": "Method",
-        "method": "invoke",
-        "file": "Method.java",
-        "line": 566
-      },
-      {
-        "full_class": "org.springframework.web.method.support.InvocableHandlerMethod",
-        "package": "org.springframework.web.method.support",
-        "class_name": "InvocableHandlerMethod",
-        "method": "doInvoke",
-        "file": "InvocableHandlerMethod.java",
-        "line": 190
-      },
-      {
-        "full_class": "org.springframework.web.method.support.InvocableHandlerMethod",
-        "package": "org.springframework.web.method.support",
-        "class_name": "InvocableHandlerMethod",
-        "method": "invokeForRequest",
-        "file": "InvocableHandlerMethod.java",
-        "line": 138
-      },
-      {
-        "full_class": "org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod",
-        "package": "org.springframework.web.servlet.mvc.method.annotation",
-        "class_name": "ServletInvocableHandlerMethod",
-        "method": "invokeAndHandle",
-        "file": "ServletInvocableHandlerMethod.java",
-        "line": 105
-      }
-    ],
-    "raw_text": "Subject: [긴급] 운영계 서버 에러 발생 - NullPointerException\n\n안녕하세요,\n\n오늘 오후 2시 30분경 운영계 서버에서 다음과 같은 에러가 발생했습니다.\n\n========================================\n에러 로그:\n========================================\n\njava.lang.NullPointerException: Cannot invoke \"String.length()\" because \"customerName\" is null\n\tat com.hanwha.ax.service.CustomerService.validateCustomerData(CustomerService.java:145)\n\tat com.hanwha.ax.service.CustomerService.processCustomerOrder(CustomerService.java:89)\n\tat com.hanwha.ax.controller.OrderCo"
+    ]
   }
 }

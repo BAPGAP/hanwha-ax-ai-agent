@@ -20,8 +20,15 @@ RAG 기반 전체 3단계 통합 실행 스크립트
 
 import sys
 import argparse
+import os
 from pathlib import Path
 from datetime import datetime
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+except ImportError:
+    pass
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
@@ -45,9 +52,9 @@ def main():
     
     parser.add_argument("--project", default="example_project", help="Java 프로젝트 경로")
     parser.add_argument("--email", default="email", help="이메일 폴더")
-    parser.add_argument("--llm", choices=["mock", "ollama", "openai"], default="mock", help="LLM 타입")
-    parser.add_argument("--model", default="qwen2.5:7b", help="모델 이름")
-    parser.add_argument("--api-key", help="OpenAI API 키")
+    parser.add_argument("--llm", choices=["groq", "mock", "ollama", "openai"], default="groq", help="LLM 타입")
+    parser.add_argument("--model", default="compound-beta", help="모델 이름")
+    parser.add_argument("--api-key", default=os.environ.get("GROQ_API_KEY", ""), help="Groq/OpenAI API 키")
     parser.add_argument("--chunk-size", type=int, default=500, help="코드 청크 크기")
     parser.add_argument("--top-k", type=int, default=5, help="검색할 상위 결과 수")
     parser.add_argument("--reindex", action="store_true", help="벡터 DB 재생성")
@@ -67,7 +74,15 @@ def main():
     
     # 1단계: 이메일 파싱
     print_header(1, "메일 파싱")
-    parser_obj = EmailParser(email_folder=args.email)
+    use_mock_s1 = args.llm == "mock"
+    model_s1    = args.model if not use_mock_s1 else "mock"
+    parser_obj  = EmailParser(
+        email_folder=args.email,
+        llm_type=args.llm,
+        model_name=model_s1,
+        api_key=args.api_key,
+        use_mock=use_mock_s1
+    )
     parsed_results = parser_obj.parse_all_emails()
     print(f"✅ {len(parsed_results)}개 파일 파싱 완료")
     

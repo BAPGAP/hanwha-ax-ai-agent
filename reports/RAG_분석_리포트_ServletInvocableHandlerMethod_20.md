@@ -1,8 +1,8 @@
 # 🤖 AI 에러 분석 리포트 (RAG 기반)
 
-**생성 시간**: 2026-05-22 01:14:49  
+**생성 시간**: 2026-05-23 18:26:17  
 **원본 이메일**: sample_error.txt  
-**LLM**: mock (qwen2.5:7b)  
+**LLM**: ollama (qwen2.5:7b)  
 **검색 방법**: RAG (Retrieval-Augmented Generation)
 
 ---
@@ -21,7 +21,7 @@
 
 ### 1. OrderController.java (유사도: -33.30%)
 
-- **경로**: `example_project\src\com\hanwha\ax\controller\OrderController.java`
+- **경로**: `C:\Users\kas12\OneDrive\바탕 화면\한화AX\hanwha-ax-ai-agent\example_project\src\com\hanwha\ax\controller\OrderController.java`
 - **청크 ID**: 2
 
 ```java
@@ -44,9 +44,29 @@ customer.setEmail(request.getCustomerEmail());
         // 주문 제출 로직
 ```
 
-### 2. OrderController.java (유사도: -38.14%)
+### 2. PolicySearchPSI.java (유사도: -35.89%)
 
-- **경로**: `example_project\src\com\hanwha\ax\controller\OrderController.java`
+- **경로**: `C:\Users\kas12\OneDrive\바탕 화면\한화AX\hanwha-ax-ai-agent\example_project\policy-search-demo\src\main\java\com\hanwha\ax\psi\PolicySearchPSI.java`
+- **청크 ID**: 0
+
+```java
+package com.hanwha.ax.psi;
+
+import com.hanwha.ax.dsi.PolicySearchDSI;
+import com.hanwha.ax.vo.PolicySearchResultVO;
+import com.hanwha.ax.vo.PolicySearchVO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+```
+
+### 3. OrderController.java (유사도: -38.14%)
+
+- **경로**: `C:\Users\kas12\OneDrive\바탕 화면\한화AX\hanwha-ax-ai-agent\example_project\src\com\hanwha\ax\controller\OrderController.java`
 - **청크 ID**: 0
 
 ```java
@@ -59,107 +79,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 ```
 
-### 3. CustomerService.java (유사도: -38.77%)
-
-- **경로**: `example_project\src\com\hanwha\ax\service\CustomerService.java`
-- **청크 ID**: 1
-
-```java
-/**
- * 고객 정보 처리 서비스
- */
-@Service
-public class CustomerService {
-    
-    /**
-     * 고객 주문 처리
-     */
-    public Order processCustomerOrder(Customer customer, Order order) {
-        System.out.println("Processing order for customer: " + customer.getId());
-        
-        // 고객 데이터 검증
-        validateCustomerData(customer);
-        
-        // 주문 처리 로직
-        order.setStatus("PROCESSING");
-        order.setCustomerId(customer.getId());
-        
-        return order;
-    }
-    
-    /**
-```
-
 ---
 
 ## 🤖 AI 분석
 
-## 1. 원인 분석
-
-RAG 검색 결과를 기반으로 분석한 결과, 해당 에러는 다음과 같은 원인으로 발생했습니다:
-
-- **주요 원인**: Null 체크 누락 또는 예외 처리 부재
-- **발생 위치**: 검색된 코드 조각들에서 공통적으로 발견되는 패턴
-- **트리거 조건**: 특정 입력값이나 상태에서 발생
-
-## 2. 영향 범위
-
-- **직접 영향**: 해당 기능 사용 불가
-- **간접 영향**: 연관된 트랜잭션 롤백 가능성
-- **사용자 영향**: 에러 메시지 노출, 서비스 중단
-
-## 3. 수정 방법
-
-### 우선순위 1: 즉시 수정
-
-```java
-// 수정 전
-if (data != null && data.getValue() != null) {
-    process(data.getValue());
-}
-
-// 수정 후
-if (data != null && data.getValue() != null) {
-    process(data.getValue());
-} else {
-    log.warn("데이터가 null입니다: {}", data);
-    // 기본값 처리 또는 예외 발생
-}
-```
-
-### 우선순위 2: 구조 개선
-
-- Optional 활용
-- 방어적 프로그래밍
-- 예외 처리 추가
-
-## 4. 코드 예시
-
-```java
-// 개선된 코드
-public void processData(Data data) {
-    Objects.requireNonNull(data, "Data must not be null");
-    
-    Optional.ofNullable(data.getValue())
-        .ifPresentOrElse(
-            value -> process(value),
-            () -> log.warn("Value is null, using default")
-        );
-}
-```
-
-## 5. 예방 방법
-
-- **코드 리뷰**: Null 체크 필수 확인
-- **정적 분석**: SpotBugs, SonarQube 활용
-- **단위 테스트**: Null 케이스 테스트 추가
-- **문서화**: Nullable 파라미터 명시
-
----
-
-**⚠️ 참고**: 이 분석은 RAG로 검색된 유사 코드를 기반으로 생성되었습니다.
-실제 적용 시 프로젝트 상황에 맞게 조정하세요.
-
+❌ Ollama 서버에 연결할 수 없습니다. `ollama serve` 실행 확인 필요.
 
 ---
 

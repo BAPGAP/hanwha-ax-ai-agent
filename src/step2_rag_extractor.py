@@ -131,12 +131,13 @@ class RAGCodeExtractor:
         
         print(f"\n📊 총 {len(documents)}개 청크 생성됨")
         
-        # 벡터 DB 생성
+        # 벡터 DB 생성 (코사인 유사도 공간 사용 - 유사도 계산 정확도 향상)
         print("\n🔄 벡터 DB 생성 중... (시간이 걸릴 수 있습니다)")
         self.vectorstore = Chroma.from_documents(
             documents=documents,
             embedding=self.embeddings,
-            persist_directory=self.vector_db_path
+            persist_directory=self.vector_db_path,
+            collection_metadata={"hnsw:space": "cosine"}
         )
         
         print(f"✅ 벡터 DB 저장 완료: {self.vector_db_path}")
@@ -186,7 +187,9 @@ class RAGCodeExtractor:
         for i, (doc, score) in enumerate(results, 1):
             result = {
                 'rank': i,
-                'similarity_score': float(1 - score),  # 거리 → 유사도
+                # 거리 → 유사도: 1/(1+d) 로 항상 (0,1] 범위 보장
+                # (L2²/cosine 등 어떤 거리 메트릭이든 음수 방지)
+                'similarity_score': float(1.0 / (1.0 + score)),
                 'file_path': doc.metadata['source'],
                 'file_name': doc.metadata['file_name'],
                 'class_name': doc.metadata['class_name'],
@@ -206,111 +209,127 @@ class RAGCodeExtractor:
         output_path: str = "output/step2_rag_contexts.json"
     ) -> Dict[str, List[Dict]]:
         """
-        1단계 파싱 결과를 RAG로 처리
-        
-        Args:
-            parsed_json_path: 1단계 결과 JSON 파일
-            output_path: 출력 JSON 파일
-            
-        Returns:
-            이메일별 검색 결과
+        1단계 AI 분석 결과를 RAG로 처리.
+
+        1단계 출력 포맷 우선순위:
+          1) search_queries (AI가 생성한 RAG 검색 키워드) → 직접 사용
+          2) exceptions / stack_traces (호환 필드) → fallback
+          3) error_summary / raw_text → 최후 fallback
         """
         print("=" * 60)
         print("[2단계 - RAG] 의미 기반 코드 검색")
         print("=" * 60)
-        
+
         # 벡터 DB 로드 또는 생성
         if not self.load_vectorstore():
             print("⚠️ 벡터 DB가 없습니다. 코드베이스를 인덱싱합니다...\n")
             self.index_codebase()
-        
+
         # 1단계 결과 로드
         print(f"📂 1단계 결과 로드: {parsed_json_path}")
         with open(parsed_json_path, 'r', encoding='utf-8') as f:
             parsed_data = json.load(f)
-        
+
         email_count = len(parsed_data)
         print(f"📧 {email_count}개 이메일 파일 처리 중...\n")
-        
+
         all_results = {}
-        
+
         for email_file, data in parsed_data.items():
             print("=" * 60)
             print(f"📧 처리 중: {email_file}")
             print("=" * 60)
-            
+
             results = []
-            
-            # Exception 처리
-            for exc in data.get('exceptions', []):
-                exc_type = exc.get('type', 'Unknown')
-                exc_message = exc.get('message', '')
-                print(f"\n🔍 Exception 검색: {exc_type}")
-                
-                # 에러 타입 + 메시지로 검색
-                query = f"{exc_type} {exc_message}"
-                search_results = self.search_similar_code(query, top_k=3)
-                
-                results.append({
-                    'error_type': 'exception',
-                    'exception_type': exc_type,
-                    'exception_message': exc_message,
-                    'search_query': query,
-                    'found_codes': search_results
-                })
-            
-            # Stack Trace 처리
-            for trace in data.get('stack_traces', []):
-                class_name = trace.get('class_name', 'Unknown')
-                method = trace.get('method', 'Unknown')
-                
-                print(f"\n🔍 Stack Trace 검색: {class_name}.{method}()")
-                
-                # 클래스명 + 메서드명으로 검색
-                query = f"{class_name} {method}"
-                search_results = self.search_similar_code(query, top_k=3)
-                
-                results.append({
-                    'error_type': 'stack_trace',
-                    'class_name': class_name,
-                    'method': method,
-                    'line': trace.get('line'),
-                    'search_query': query,
-                    'found_codes': search_results
-                })
-            
-            # 일반 에러 메시지 처리 (Stack Trace 없는 경우)
-            if not data.get('exceptions') and not data.get('stack_traces'):
-                print(f"\n🔍 일반 검색: 원본 텍스트에서 키워드 추출")
-                
-                # 원본 텍스트 일부를 쿼리로 사용
-                raw_text = data.get('raw_content', '')[:500]
-                search_results = self.search_similar_code(raw_text, top_k=5)
-                
-                results.append({
-                    'error_type': 'general',
-                    'search_query': raw_text[:100] + '...',
-                    'found_codes': search_results
-                })
-            
+
+            # ── 우선순위 1: AI가 생성한 search_queries 직접 사용 ──────────
+            search_queries = data.get('search_queries', [])
+            if search_queries:
+                print(f"\n✅ AI 생성 검색 키워드 {len(search_queries)}개 사용")
+                for q in search_queries:
+                    if not q or not q.strip():
+                        continue
+                    print(f"\n🔍 검색: {q}")
+                    found = self.search_similar_code(q, top_k=self.top_k)
+                    results.append({
+                        'error_type':  'ai_query',
+                        'search_query': q,
+                        'error_summary': data.get('error_summary', ''),
+                        'severity':     data.get('severity', 'MEDIUM'),
+                        'found_codes':  found
+                    })
+
+            # ── 우선순위 2: exceptions fallback ──────────────────────────
+            if not results:
+                for exc in data.get('exceptions', []):
+                    exc_type    = exc.get('exception', exc.get('type', 'Unknown'))
+                    exc_message = exc.get('message', '')
+                    if not exc_type:
+                        continue
+                    print(f"\n🔍 Exception 검색: {exc_type}")
+                    query = f"{exc_type} {exc_message}".strip()
+                    found = self.search_similar_code(query, top_k=3)
+                    results.append({
+                        'error_type':       'exception',
+                        'exception_type':    exc_type,
+                        'exception_message': exc_message,
+                        'search_query':      query,
+                        'found_codes':       found
+                    })
+
+            # ── 우선순위 3: stack_traces fallback ────────────────────────
+            if not results:
+                for trace in data.get('stack_traces', []):
+                    class_name = trace.get('class_name', 'Unknown')
+                    method     = trace.get('method', 'Unknown')
+                    print(f"\n🔍 Stack Trace 검색: {class_name}.{method}()")
+                    query = f"{class_name} {method}"
+                    found = self.search_similar_code(query, top_k=3)
+                    results.append({
+                        'error_type':  'stack_trace',
+                        'class_name':  class_name,
+                        'method':      method,
+                        'line':        trace.get('line'),
+                        'search_query': query,
+                        'found_codes': found
+                    })
+
+            # ── 우선순위 4: 오류 요약 또는 원본 텍스트 최후 fallback ─────
+            if not results:
+                fallback_text = (
+                    data.get('error_summary')
+                    or data.get('raw_text', '')[:500]
+                )
+                if fallback_text:
+                    print(f"\n🔍 오류 요약 기반 검색")
+                    found = self.search_similar_code(fallback_text, top_k=5)
+                    results.append({
+                        'error_type':  'general',
+                        'search_query': fallback_text[:200],
+                        'found_codes': found
+                    })
+
             all_results[email_file] = {
-                'email_file': email_file,
-                'has_error': data.get('has_error', False),
+                'email_file':   email_file,
+                'has_error':    data.get('has_error', False),
+                'error_summary': data.get('error_summary', ''),
+                'severity':     data.get('severity', 'MEDIUM'),
+                'root_cause':   data.get('root_cause', ''),
                 'search_count': len(results),
-                'searches': results
+                'searches':     results
             }
-            
+
             print(f"\n✅ {email_file}: {len(results)}개 검색 완료\n")
-        
+
         # 결과 저장
         os.makedirs(Path(output_path).parent, exist_ok=True)
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(all_results, f, indent=2, ensure_ascii=False)
-        
+
         print("=" * 60)
         print(f"✅ RAG 검색 결과 저장: {output_path}")
         print("=" * 60 + "\n")
-        
+
         return all_results
 
 
