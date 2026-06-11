@@ -560,32 +560,7 @@ def display_stage3_results(result):
     if result["use_mock"]:
         st.warning("⚠️ Mock 모드로 실행됨 (데모용 분석)")
     
-    # 생성된 리포트 목록
-    reports_dir = Path("reports")
-    if reports_dir.exists():
-        report_files = sorted(
-            reports_dir.glob("*.md"),
-            key=lambda f: f.stat().st_mtime,
-            reverse=True  # 최신 순
-        )
-        
-        if report_files:
-            st.markdown("### 📁 생성된 리포트")
-            
-            report_names = [f.name for f in report_files]
-            selected_report = st.selectbox(
-                "리포트 선택",
-                report_names,
-                index=0  # 최신 리포트 자동 선택
-            )
-            
-            if selected_report:
-                report_path = reports_dir / selected_report
-                with open(report_path, "r", encoding="utf-8") as f:
-                    report_content = f.read()
-                
-                st.markdown("---")
-                st.markdown(report_content)
+    st.info("📄 분석 리포트가 생성되었습니다. 아래 '📂 리포트 뷰어'에서 최신 리포트를 확인하세요.")
 
 
 def main():
@@ -822,9 +797,9 @@ def main():
             if 'stage3' in st.session_state.results:
                 display_stage3_results(st.session_state.results['stage3'])
     
-    # ── 리포트 뷰어 (항상 표시) ─────────────────────────────
+    # ── 리포트 뷰어 (항상 표시, 최신 리포트 자동 표시) ─────────────────────────────
     st.markdown("---")
-    st.header("📂 리포트 뷰어")
+    st.header("📂 AI 에러 분석 리포트")
 
     reports_dir = Path("reports")
     if reports_dir.exists():
@@ -834,19 +809,11 @@ def main():
             reverse=True  # 최신 순
         )
         if report_files:
-            report_names = [f.name for f in report_files]
-            selected_report = st.selectbox(
-                "리포트 선택 (최신 순)",
-                report_names,
-                index=0,
-                key="report_viewer_select"
-            )
-            if selected_report:
-                report_path = reports_dir / selected_report
-                with open(report_path, "r", encoding="utf-8") as f:
-                    report_content = f.read()
-                st.markdown("---")
-                st.markdown(report_content)
+            latest = report_files[0]
+            st.caption(f"📄 최신 리포트: `{latest.name}`")
+            with open(latest, "r", encoding="utf-8") as f:
+                report_content = f.read()
+            st.markdown(report_content)
         else:
             st.info("📝 아직 생성된 리포트가 없습니다. '🚀 전체 실행'을 클릭하세요.")
     else:

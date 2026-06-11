@@ -159,7 +159,7 @@ class RAGAnalysisReportGenerator:
             raise ValueError(f"지원하지 않는 LLM 타입: {self.llm_type}")
     
     def call_groq_api(self, prompt: str) -> str:
-        """Groq API 호출 (compound-beta, 429 자동 재시도)"""
+        """Groq API 호출 (compound-beta, 429 자동 재시도 + 호출 간격 제어)"""
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -172,9 +172,17 @@ class RAGAnalysisReportGenerator:
                 {"role": "user",   "content": prompt}
             ],
             "temperature": 0.7,
-            "max_tokens": 4096
+            "max_tokens": 2048
         }
-        retry_waits = [5, 15, 30]
+        # ── API 호출 간격 제어 (Rate Limit 예방) ─────────────────────────
+        MIN_CALL_INTERVAL = 15  # 최소 15초 간격 (Groq TPM 한도 초과 방지)
+        elapsed = time.time() - getattr(self, '_last_groq_call', 0)
+        if elapsed < MIN_CALL_INTERVAL:
+            gap = MIN_CALL_INTERVAL - elapsed
+            print(f"      ⏸ API 호출 간격 조정 ({gap:.1f}초 대기)...", flush=True)
+            time.sleep(gap)
+
+        retry_waits = [30, 60, 120]  # 429 재시도: 30s → 60s → 120s
         for attempt, wait in enumerate(retry_waits + [None], start=1):
             try:
                 prompt_len = len(payload["messages"][1]["content"])
@@ -184,6 +192,7 @@ class RAGAnalysisReportGenerator:
                 result = response.json()["choices"][0]["message"]["content"]
                 tokens = response.json().get("usage", {}).get("completion_tokens", "?")
                 print(f"      ✅ 완료 (총 {tokens} tokens)")
+                self._last_groq_call = time.time()  # 마지막 호출 시각 갱신
                 return result
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 429 and wait is not None:
@@ -204,7 +213,135 @@ class RAGAnalysisReportGenerator:
                 return "❌ Groq API에 연결할 수 없습니다. 인터넷 연결을 확인하세요."
             except Exception as e:
                 return f"❌ Groq API 오류: {e}"
+        self._last_groq_call = time.time()
         return "❌ Groq Rate Limit 시도 실패 - 잠시 후 다시 시도하세요."
+
+    def build_merged_rag_prompt(self, error_overview: Dict, searches: List[Dict]) -> str:
+        """
+        여러 검색 쿼리 결과를 하나의 통합 프롬프트로 변환 (LLM 호출 횟수 최소화)
+        중복 소스코드를 제거하고 핵심 정보만 포함하여 413/429 오류도 방지
+        """
+        prompt = "## 🔍 에러 종합 분석 요청\n\n"
+
+        error_summary = error_overview.get('error_summary', '')[:1500]
+        root_cause    = error_overview.get('root_cause', '')[:600]
+        severity      = error_overview.get('severity', 'MEDIUM')
+
+        if error_summary:
+            prompt += f"### 📝 오류 요약\n\n{error_summary}\n\n"
+        if root_cause:
+            prompt += f"### 🎯 추정 근본 원인\n\n{root_cause}\n\n"
+        prompt += f"**심각도**: `{severity}`\n\n"
+
+        # 검색어 목록
+        queries = [s.get('search_query', '') for s in searches if s.get('search_query')]
+        if queries:
+            prompt += f"**분석 검색어**: {', '.join(f'`{q}`' for q in queries)}\n\n"
+
+        # 중복 제거: 파일명 기준으로 유사도 최고 스니펫만 유지
+        seen_files: Dict[str, Dict] = {}
+        for search in searches:
+            for code in search.get('found_codes', []):
+                fname = code.get('file_name', '')
+                sim   = code.get('similarity_score', 0)
+                if fname not in seen_files or seen_files[fname].get('similarity_score', 0) < sim:
+                    seen_files[fname] = code
+
+        unique_codes = sorted(
+            seen_files.values(),
+            key=lambda x: x.get('similarity_score', 0),
+            reverse=True
+        )[:5]  # 상위 5개만
+
+        if unique_codes:
+            prompt += "### 🔎 관련 소스코드 (중복 제거)\n\n"
+            for i, result in enumerate(unique_codes, 1):
+                sim   = result.get('similarity_score', 0)
+                fname = result.get('file_name', 'Unknown')
+                fpath = result.get('file_path', '')
+                code  = result.get('code_snippet', '')
+                prompt += f"#### {i}. {fname}  (유사도: {sim:.1%})\n"
+                prompt += f"경로: `{fpath}`\n\n"
+                prompt += "```java\n"
+                prompt += code[:400] + ("..." if len(code) > 400 else "")
+                prompt += "\n```\n\n"
+        else:
+            prompt += "### ⚠️ RAG 검색 결과 없음\n소스코드를 찾지 못했습니다.\n\n"
+
+        prompt += """### 📊 종합 분석 요청
+
+위 정보를 바탕으로 아래 항목을 **한국어**로 종합 분석해 주세요:
+
+1. **근본 원인 분석**: 에러 발생의 정확한 원인과 메커니즘
+2. **영향 범위**: 시스템에 미치는 영향
+3. **해결 방법**: 우선순위 순 구체적인 해결 방법 (참고용 코드 예시 포함)
+4. **예방 방법**: 향후 유사 에러 방지 방법
+
+주의: 실제 소스 파일의 직접 수정 지시는 제공하지 마세요. 개발자가 검토 후 수동 적용합니다.
+"""
+        MAX_PROMPT = 3500
+        if len(prompt) > MAX_PROMPT:
+            prompt = prompt[:MAX_PROMPT] + "\n\n...(내용 축약됨)\n\n### 📊 분석 요청\n위 정보를 바탕으로 원인 분석, 해결 방법, 예방 방법을 한국어로 답해주세요."
+        return prompt
+
+    def generate_merged_section(
+        self,
+        error_overview: Dict,
+        searches: List[Dict],
+        analysis: str
+    ) -> str:
+        """여러 검색 쿼리 결과를 하나의 종합 분석 섹션으로 생성"""
+        section = "## 🔍 종합 분석\n\n"
+
+        # 오류 정보
+        section += "### 📧 오류 정보\n\n"
+        if error_overview.get('error_summary'):
+            section += f"- **오류 요약**: {error_overview['error_summary'][:300]}\n"
+        if error_overview.get('root_cause'):
+            section += f"- **추정 원인**: {error_overview['root_cause'][:200]}\n"
+        section += f"- **심각도**: `{error_overview.get('severity', 'MEDIUM')}`\n\n"
+
+        # 분석에 사용된 검색어
+        queries = [s.get('search_query', '') for s in searches if s.get('search_query')]
+        if queries:
+            section += "### 🔍 분석 검색어\n\n"
+            for q in queries:
+                section += f"- `{q}`\n"
+            section += "\n"
+
+        # 중복 제거된 RAG 검색 결과
+        seen_files: Dict[str, Dict] = {}
+        for search in searches:
+            for code in search.get('found_codes', []):
+                fname = code.get('file_name', '')
+                sim   = code.get('similarity_score', 0)
+                if fname not in seen_files or seen_files[fname].get('similarity_score', 0) < sim:
+                    seen_files[fname] = code
+
+        unique_codes = sorted(
+            seen_files.values(),
+            key=lambda x: x.get('similarity_score', 0),
+            reverse=True
+        )[:5]
+
+        if unique_codes:
+            section += "### 🔎 관련 소스코드 (중복 제거)\n\n"
+            for i, result in enumerate(unique_codes, 1):
+                sim   = result.get('similarity_score', 0)
+                fname = result.get('file_name', 'Unknown')
+                section += f"**{i}. {fname}** (유사도: {sim:.2%})\n"
+                section += f"경로: `{result.get('file_path', '')}`\n\n"
+                code = result.get('code_snippet', '')
+                section += "```java\n"
+                section += code[:400] + ("..." if len(code) > 400 else "")
+                section += "\n```\n\n"
+        else:
+            section += "### 🔎 RAG 검색 결과\n\n> ⚠️ 관련 소스코드를 찾지 못했습니다.\n\n"
+
+        section += "### 🤖 AI 종합 분석\n\n"
+        section += analysis
+        section += "\n\n"
+        return section
 
     def call_ollama_api(self, prompt: str) -> str:
         """Ollama API 호출 (스트리밍 모드 - 타임아웃 방지)"""
@@ -398,19 +535,21 @@ public void processData(Data data) {
         self,
         email_file: str,
         data_overview: Dict,
-        query_sections: List[str]
+        query_sections: List[str],
+        original_query_count: Optional[int] = None
     ) -> str:
-        """여러 쿼리 분석 결과를 하나의 통합 리포트로 생성 (이메일 1개 → 파일 1개)"""
+        """분석 섹션들을 하나의 통합 리포트로 생성 (이메일 1개 → 파일 1개)"""
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         total     = len(query_sections)
+        display_count = original_query_count if original_query_count is not None else total
 
         report  = f"# 🤖 AI 에러 분석 리포트\n\n"
         report += f"| 항목 | 내용 |\n|---|---|\n"
         report += f"| 📧 원본 파일 | `{email_file}` |\n"
         report += f"| 🕐 생성 시간 | {timestamp} |\n"
         report += f"| 🤖 LLM | {self.llm_type} / {self.model_name} |\n"
-        report += f"| 🔍 분석 쿼리 수 | {total}개 |\n"
+        report += f"| 🔍 분석 검색어 수 | {display_count}개 (통합 분석) |\n"
         report += f"| ⚠️ 심각도 | `{data_overview.get('severity', 'MEDIUM')}` |\n\n"
 
         if data_overview.get('error_summary'):
@@ -418,7 +557,7 @@ public void processData(Data data) {
 
         report += "---\n\n"
 
-        # 목차
+        # 목차 (섹션이 2개 이상일 때만 표시)
         if total > 1:
             report += "## 📋 목차\n\n"
             for i in range(1, total + 1):
@@ -529,45 +668,40 @@ public void processData(Data data) {
                 continue
 
             searches = data.get('searches', [])
-            print(f"\n📧 처리 중: {email_file}  (쿼리 {len(searches)}개)")
+            print(f"\n📧 처리 중: {email_file}  (검색어 {len(searches)}개 → 통합 분석 1회)")
+            current_item += 1
 
-            query_sections = []   # 이메일 내 각 쿼리의 분석 섹션을 수집
+            # ── 중복 제거 확인 ────────────────────────────────────────────
+            all_codes: Dict[str, Dict] = {}
+            for s in searches:
+                for c in s.get('found_codes', []):
+                    fname = c.get('file_name', '')
+                    sim   = c.get('similarity_score', 0)
+                    if fname not in all_codes or all_codes[fname].get('similarity_score', 0) < sim:
+                        all_codes[fname] = c
+            unique_count = len(all_codes)
+            total_raw    = sum(len(s.get('found_codes', [])) for s in searches)
+            if total_raw > unique_count:
+                print(f"   🗜  중복 코드 제거: {total_raw}건 → {unique_count}건 (고유 파일)")
 
-            for idx, search in enumerate(searches, 1):
-                current_item += 1
-                error_type     = search.get('error_type', 'general')
-                search_results = search.get('found_codes', [])
-                if not isinstance(search_results, list):
-                    search_results = []
+            # ── 통합 프롬프트 생성 및 LLM 1회 호출 ──────────────────────
+            queries_label = ', '.join(
+                f"`{s.get('search_query', '')}` " for s in searches if s.get('search_query')
+            )
+            print(f"   🔗 검색어 통합: {queries_label}")
+            print(f"\n   [1/1] 🎯 종합 분석 중...")
 
-                if not search_results:
-                    print(f"   ℹ️  RAG 검색 결과 없음 - 오류 요약만으로 분석")
+            prompt   = self.build_merged_rag_prompt(data, searches)
+            analysis = self.call_llm(prompt)
 
-                # 식별자 (로그 표시용)
-                if error_type == 'exception':
-                    identifier = search.get('exception_type', 'Exception').replace('.', '_')
-                elif error_type == 'stack_trace':
-                    identifier = search.get('class_name', 'StackTrace')
-                elif error_type == 'ai_query':
-                    q = search.get('search_query', 'query')[:30].replace(' ', '_')
-                    identifier = f"Query_{q}"
-                else:
-                    identifier = "General_Error"
-
-                print(f"\n   [{current_item}/{total_items}] 🎯 {identifier} 분석 중...")
-
-                # 프롬프트 생성 및 LLM 호출
-                prompt   = self.build_rag_prompt(search, search_results)
-                analysis = self.call_llm(prompt)
-
-                # 쿼리별 섹션 생성 (파일 저장 없이 메모리에 수집)
-                section = self.generate_query_section(
-                    idx, len(searches), search, search_results, analysis
-                )
-                query_sections.append(section)
+            # ── 통합 섹션 생성 ────────────────────────────────────────────
+            merged_section = self.generate_merged_section(data, searches, analysis)
 
             # ── 이메일 1개 → 통합 리포트 파일 1개 저장 ─────────────────
-            combined_report = self.generate_combined_report(email_file, data, query_sections)
+            combined_report = self.generate_combined_report(
+                email_file, data, [merged_section],
+                original_query_count=len(searches)
+            )
 
             ts        = datetime.now().strftime("%Y%m%d_%H%M%S")
             safe_file = Path(email_file).stem[:40].replace('/', '_').replace('\\', '_')
